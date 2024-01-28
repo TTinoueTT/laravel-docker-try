@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use App\Contexts\DataBaseMigrationComponent;
 
-class DatabaseMigrate extends Command
+class DataBaseMigrate extends Command
 {
     /**
      * The name and signature of the console command.
@@ -26,5 +27,6 @@ class DatabaseMigrate extends Command
     public function handle()
     {
         $this->info('Hello, World!');
+        DataBaseMigrationComponent::migrate_exec();
     }
 }

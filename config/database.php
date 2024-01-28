@@ -1,6 +1,27 @@
 <?php
 
 use Illuminate\Support\Str;
+use App\Contexts\DBAccessComponent;
+use App\Contexts\SuitLocationComponent;
+
+$dbHost = null;
+$dbPassword = null;
+$dbName = null;
+
+// if (!app()->runningInConsole()) {
+//     $suitLocationComponent = new SuitLocationComponent();
+//     $dbAccessComponent = new DBAccessComponent();
+
+//     $location = SuitLocationComponent::get();
+
+//     $dbHost = $dbAccessComponent->getHost($location);
+//     $dbPassword = $dbAccessComponent->getPassword($location);
+//     $dbName = $dbAccessComponent->getDatabaseName();
+// }
+// if (empty($dbHost)) {
+//     // LogManager::echoSafe("database info is null", __FILE__ . " line" . __LINE__, "/config/database.php always return value of empty array[].if running from console that result is correct.it's stopped reason「url() process is cant progress on artisan process」. if not running from console, it is server has maybe any problem.");
+//     return [];
+// }
 
 return [
 
@@ -43,6 +64,7 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
 
+        # mysql DB config *****************************
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
@@ -62,6 +84,65 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
+
+        'mysql_new' => [
+            'driver' => 'mysql',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_DEVELOPMENT_HOST', '127.0.0.1'),
+            'port' => "3306",
+            'database' => "migration",
+            'username' => "admin",
+            'password' => env('DB_DEVELOPMENT_PASSWORD', 'password'),
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+        'mysql_new_payment' => [
+            'driver' => 'mysql',
+            'url' => env('DB_DEVELOPMENT_HOST'),
+            'host' => env('DB_DEVELOPMENT_HOST', '127.0.0.1'),
+            'port' => "3306",
+            'database' => "migration",
+            'username' => "admin",
+            'password' => env('DB_DEVELOPMENT_PASSWORD', 'password'),
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+        'mysql_old' => [
+            'driver' => 'mysql',
+            'url' => env('DATABASE_URL'),
+            'host' => env('OLD_DB_HOST', '127.0.0.1'),
+            'port' => "3306",
+            'database' => "capo_reo",
+            'username' => "rensa",
+            'password' => env('DB_DEVELOPMENT_PASSWORD', 'password'),
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+        # mysql DB config *****************************
 
         'pgsql' => [
             'driver' => 'pgsql',
@@ -125,7 +206,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [
