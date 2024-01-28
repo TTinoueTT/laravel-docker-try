@@ -18,7 +18,7 @@ class DBAccessComponent
      * Undocumented function
      *
      * @param [type] $location
-     * @return void
+     * @return array
      */
     public function getHost($location)
     {
