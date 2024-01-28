@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Old;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class OldUserData extends Model
+class OldSoftbankPurchase extends Model
 {
     use HasFactory;
+
     /**
      * このモデルが使用するデータベース接続
      *
@@ -20,7 +21,7 @@ class OldUserData extends Model
      * 別の名前を明示的に指定しない限り、クラスの複数形の「スネークケース」をテーブル名として使用
      * @var string
      */
-    protected $table = 'users_data';
+    protected $table = 'softbank_purchases';
 
     /**
      * モデルにタイムスタンプを付けるか
@@ -35,12 +36,28 @@ class OldUserData extends Model
      * @var array
      */
     protected $attributes = [
-        self::USER_ID => 0,
-        self::CAMPAIGN_VALUES => '[]',
-        self::RESERVATION => '[]',
+        self::USER_ID => null,
+        self::HISTORY_ID => null,
+        self::OUR_STATUS => 0,
+        self::MANAGE_NO => '',
+        self::AMOUNT => 0,
+        self::CP_NOTE => '',
+        self::TRANSACTION_ID => '',
+        self::ORDER_NO => '',
+        self::PURCHASE_DAY => date("Y-m-d H:i:s"),
+        self::RESULT_STATUS => '',
+        self::STATUS_CODE => 0,
     ];
 
     const USER_ID = "user_id";
-    const CAMPAIGN_VALUES = "campaign_values";
-    const RESERVATION = "reservation";
+    const HISTORY_ID = "history_id";
+    const OUR_STATUS = "our_status";
+    const MANAGE_NO = "manage_no";
+    const AMOUNT = "amount";
+    const CP_NOTE = "cp_note";
+    const TRANSACTION_ID = "transaction_id";
+    const ORDER_NO = "order_no";
+    const PURCHASE_DAY = "purchase_day";
+    const RESULT_STATUS = "result_status";
+    const STATUS_CODE = "status_code";
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Old;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,18 +36,18 @@ class OldUser extends Model
      * @var array
      */
     protected $attributes = [
-        self::EMAIL => 0,
-        self::ENCRYPTED_PASSWORD => '[]',
-        self::REF_FROM => '[]',
-        self::REF_CATE => '[]',
-        self::REF_U_ID => '[]',
-        self::REF_AD_ID => '[]',
-        self::MIGRATION_CODE => '[]',
-        self::INTENT => '[]',
-        self::MAIL_ADDRESS => '[]',
-        self::NOTIFICATION => '[]',
-        self::NOTIFICATION_OPTOUT_AT => '[]',
-        self::NOTIFICATION_OPTIN_AT => '[]',
+        self::EMAIL => '',
+        self::ENCRYPTED_PASSWORD => '',
+        self::REF_FROM => '',
+        self::REF_CATE => '',
+        self::REF_U_ID => '',
+        self::REF_AD_ID => '',
+        self::MIGRATION_CODE => '',
+        self::INTENT => 1,
+        self::MAIL_ADDRESS => '',
+        self::NOTIFICATION => 1,
+        self::NOTIFICATION_OPTOUT_AT => date("Y-m-d H:i:s"),
+        self::NOTIFICATION_OPTIN_AT => date("Y-m-d H:i:s"),
     ];
 
     const EMAIL = "email";
