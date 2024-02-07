@@ -21,12 +21,20 @@ class DataBaseMigrate extends Command
      */
     protected $description = 'Execute the process of migrating the database';
 
+    private $dbMigrationComponent;
+
+    public function __construct(DataBaseMigrationComponent $dbMigrationComponent)
+    {
+        parent::__construct();
+        $this->dbMigrationComponent = $dbMigrationComponent;
+    }
+
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $this->info('Hello, World!');
-        DataBaseMigrationComponent::migrate_exec();
+        $this->dbMigrationComponent->migrate_exec();
     }
 }

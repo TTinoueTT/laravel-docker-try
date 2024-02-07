@@ -5,15 +5,24 @@ namespace App\Contexts;
 use App\Models\Old\OldUser;
 use App\Models\Old\OldProfile;
 use App\Models\Old\OldUserData;
+use App\Services\ProfileServices;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
 
+
 class DataBaseMigrationComponent
 {
-    public static function migrate_exec(): void
+    private $profileServices;
+    public function __construct(ProfileServices $profileServices)
     {
-        $repeatTime = 50;
+        // DI の実行
+        $this->profileServices = $profileServices;
+    }
+
+    public function migrate_exec(): void
+    {
+        $repeatTime = 10;
         $counter = 0;
         Log::info("start database migrate execution");
 
@@ -22,19 +31,21 @@ class DataBaseMigrationComponent
             foreach ($users as $user) {
                 // ...
                 // $user = OldUser::find(1);
-                Log::info("users id : #{$user->id}");
+                Log::info("users id: {$user->id}");
 
-                $profiles = $user->profiles;
-                // OldProfile::find($user->id)->each(function (OldProfile $oldProfile) use ($counter, $user) {
+                # profile の取得
+                $this->profileServices->migrate_old_to_new($user);
 
-                // # profile の取得と、target_profiles の取得
-                // # histories の取得
-                // });
-                foreach ($profiles as $profile) {
-                    log::info("profile id : #{$profile->id}");
-                }
+                # targetProfile の取得
+
+                # histories の取得
+
+                #
+
+
 
                 log::info("======#{$counter}");
+
                 // 一旦chunk の処理を止めたい
                 // カウンタをインクリメント
                 $counter++;
