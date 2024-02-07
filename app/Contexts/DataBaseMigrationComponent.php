@@ -14,15 +14,26 @@ class DataBaseMigrationComponent
     {
         Log::info("start database migrate execution");
 
-        // OldUser::chunk(200, function (Collection $users) {
-        //     foreach ($users as $user) {
-        //         // ...
-        $user = OldUser::find(1);
+        OldUser::chunk(50, function (Collection $users) {
+            $counter = 0; // 処理回数を追跡するカウンタ
+            foreach ($users as $user) {
+                // ...
+                // $user = OldUser::find(1);
+                Log::info($user->id);
 
-        # profile の取得と、target_profiles の取得
-        # histories の取得
-        //     }
-        // });
+                # profile の取得と、target_profiles の取得
+                # histories の取得
+            }
+            log::info("======50");
+            // 一旦chunk の処理を止めたい
+            // カウンタをインクリメント
+            $counter++;
+
+            // 50回処理した後にchunkの処理を停止
+            if ($counter == 1) { // 1回のチャンク処理後に停止したい場合
+                return false; // これにより、chunk処理が停止されます。
+            }
+        });
 
         // DB に接続
         // $array = OldUser::all();
