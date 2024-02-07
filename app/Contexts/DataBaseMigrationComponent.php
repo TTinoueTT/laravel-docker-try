@@ -2,8 +2,8 @@
 
 namespace App\Contexts;
 
-use App\Models\OldUser;
-use App\Models\OldUserData;
+use App\Models\Old\OldUser;
+use App\Models\Old\OldUserData;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;

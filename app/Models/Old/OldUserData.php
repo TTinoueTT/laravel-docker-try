@@ -35,7 +35,7 @@ class OldUserData extends Model
      * @var array
      */
     protected $attributes = [
-        self::USER_ID => 0,
+        self::USER_ID => null,
         self::CAMPAIGN_VALUES => '[]',
         self::RESERVATION => '[]',
     ];

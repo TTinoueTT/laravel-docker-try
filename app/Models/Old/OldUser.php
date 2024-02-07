@@ -35,20 +35,7 @@ class OldUser extends Model
      *
      * @var array
      */
-    protected $attributes = [
-        self::EMAIL => '',
-        self::ENCRYPTED_PASSWORD => '',
-        self::REF_FROM => '',
-        self::REF_CATE => '',
-        self::REF_U_ID => '',
-        self::REF_AD_ID => '',
-        self::MIGRATION_CODE => '',
-        self::INTENT => 1,
-        self::MAIL_ADDRESS => '',
-        self::NOTIFICATION => 1,
-        self::NOTIFICATION_OPTOUT_AT => date("Y-m-d H:i:s"),
-        self::NOTIFICATION_OPTIN_AT => date("Y-m-d H:i:s"),
-    ];
+    protected $attributes = []; // デフォルト値を空の配列で初期化
 
     const EMAIL = "email";
     const ENCRYPTED_PASSWORD = "encrypted_password";
@@ -63,4 +50,22 @@ class OldUser extends Model
     const NOTIFICATION = "notification";
     const NOTIFICATION_OPTOUT_AT = "notification_optout_at";
     const NOTIFICATION_OPTIN_AT = "notification_optin_at";
+
+    public function __construct($attributes = [])
+    {
+        $this->attributes = [
+            self::EMAIL => '',
+            self::ENCRYPTED_PASSWORD => '',
+            self::REF_FROM => '',
+            self::REF_CATE => '',
+            self::REF_U_ID => '',
+            self::REF_AD_ID => '',
+            self::MIGRATION_CODE => '',
+            self::INTENT => 1,
+            self::MAIL_ADDRESS => '',
+            self::NOTIFICATION => 1,
+            self::NOTIFICATION_OPTOUT_AT => date("Y-m-d H:i:s"),
+            self::NOTIFICATION_OPTIN_AT => date("Y-m-d H:i:s"),
+        ];
+    }
 }
