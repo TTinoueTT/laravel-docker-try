@@ -68,4 +68,14 @@ class OldUser extends Model
             self::NOTIFICATION_OPTIN_AT => date("Y-m-d H:i:s"),
         ];
     }
+
+    public function profiles()
+    {
+        return $this->hasMany(OldProfile::class, OldProfile::USER_ID);
+    }
+
+    public function target_profiles()
+    {
+        return $this->hasMany(OldTargetProfile::class, OldTargetProfile::USER_ID);
+    }
 }
