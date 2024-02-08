@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models\Old;
+namespace App\Models\Old\Payment;
 
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class OldDocomoSubscription extends BaseModel
+class OldDocomoPurchase extends BaseModel
 {
     use HasFactory;
 
@@ -21,7 +21,7 @@ class OldDocomoSubscription extends BaseModel
      * 別の名前を明示的に指定しない限り、クラスの複数形の「スネークケース」をテーブル名として使用
      * @var string
      */
-    protected $table = 'docomo_subscriptions';
+    protected $table = 'docomo_purchases';
 
     /**
      * モデルにタイムスタンプを付けるか
@@ -37,12 +37,12 @@ class OldDocomoSubscription extends BaseModel
      */
     protected $attributes = [
         self::USER_ID => null,
-        self::request_type => 0,
+        self::history_id => null,
         self::status => 0,
-        self::docomo_status => 199,
+        self::price => 0,
         self::cp_token => '',
         self::cp_order_no => '',
-        self::cp_processing_time => date("Y-m-d H:i:s"),
+        self::cp_processing_time => '',
         self::cp_param => '',
         self::transaction_type => '',
         self::docomo_token => '',
@@ -51,9 +51,9 @@ class OldDocomoSubscription extends BaseModel
     ];
 
     const USER_ID = "user_id";
-    const request_type = "request_type";
+    const history_id = "history_id";
     const status = "status";
-    const docomo_status = "docomo_status";
+    const price = "price";
     const cp_token = "cp_token";
     const cp_order_no = "cp_order_no";
     const cp_processing_time = "cp_processing_time";

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models\Old;
+namespace App\Models\Old\Payment;
 
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class OldDocomoSuid extends BaseModel
+class OldAuPurchase extends BaseModel
 {
     use HasFactory;
 
@@ -21,7 +21,7 @@ class OldDocomoSuid extends BaseModel
      * 別の名前を明示的に指定しない限り、クラスの複数形の「スネークケース」をテーブル名として使用
      * @var string
      */
-    protected $table = 'docomo_suids';
+    protected $table = 'au_purchases';
 
     /**
      * モデルにタイムスタンプを付けるか
@@ -37,11 +37,25 @@ class OldDocomoSuid extends BaseModel
      */
     protected $attributes = [
         self::USER_ID => null,
-        self::SUID => '',
-        self::GUID => '',
+        self::HISTORY_ID => null,
+        self::OUR_STATUS => 0,
+        self::MANAGE_NO => '',
+        self::AMOUNT => 0,
+        self::TRANSACTION_ID => '',
+        self::PAYMTD => '',
+        self::PAY_INFO_NO => '',
+        self::PROCESS_DAY => date("Y-m-d H:i:s"),
+        self::RESULT_CODE => '',
     ];
 
     const USER_ID = "user_id";
-    const SUID = "suid";
-    const GUID = "guid";
+    const HISTORY_ID = "history_id";
+    const OUR_STATUS = "our_status";
+    const MANAGE_NO = "manage_no";
+    const AMOUNT = "amount";
+    const TRANSACTION_ID = "transaction_id";
+    const PAYMTD = "paymtd";
+    const PAY_INFO_NO = "pay_info_no";
+    const PROCESS_DAY = "process_day";
+    const RESULT_CODE = "result_code";
 }

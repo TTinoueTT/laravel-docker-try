@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models\Old;
+namespace App\Models\Old\Payment;
 
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class OldSoftbankSubscription extends BaseModel
+class OldRakutenSubscription extends BaseModel
 {
     use HasFactory;
 
@@ -21,7 +21,7 @@ class OldSoftbankSubscription extends BaseModel
      * 別の名前を明示的に指定しない限り、クラスの複数形の「スネークケース」をテーブル名として使用
      * @var string
      */
-    protected $table = 'softbank_subscriptions';
+    protected $table = 'rakuten_subscriptions';
 
     /**
      * モデルにタイムスタンプを付けるか
@@ -37,27 +37,22 @@ class OldSoftbankSubscription extends BaseModel
      */
     protected $attributes = [
         self::USER_ID => null,
-        self::OUR_STATUS => 0,
-        self::REGIST_STATUS => 0,
-        self::MANAGE_NO => '',
-        self::AMOUNT => 0,
-        self::CP_NOTE => '',
-        self::TRANSACTION_ID => '',
-        self::ORDER_NO => '',
-        self::PURCHASE_DAY => date("Y-m-d H:i:s"),
-        self::RESULT_STATUS => '',
-        self::STATUS_CODE => 0,
+        self::OPEN_ID => '',
+        self::STATUS => 0,
+        self::SERVICE_ID => 0,
+        self::ORDER_CONTROL_ID => '',
+        self::AUTH_REQUEST_ID => '',
+        self::SUBSCRIPTION_ID => '',
+        self::SUBSCRIPTION_DATE => date("Y-m-d H:i:s"),
+
     ];
 
     const USER_ID = "user_id";
-    const OUR_STATUS = "our_status";
-    const REGIST_STATUS = "regist_status";
-    const MANAGE_NO = "manage_no";
-    const AMOUNT = "amount";
-    const CP_NOTE = "cp_note";
-    const TRANSACTION_ID = "transaction_id";
-    const ORDER_NO = "order_no";
-    const PURCHASE_DAY = "purchase_day";
-    const RESULT_STATUS = "result_status";
-    const STATUS_CODE = "status_code";
+    const OPEN_ID = "open_id";
+    const STATUS = "status";
+    const SERVICE_ID = "service_id";
+    const ORDER_CONTROL_ID = "order_control_id";
+    const AUTH_REQUEST_ID = "auth_request_id";
+    const SUBSCRIPTION_ID = "subscription_id";
+    const SUBSCRIPTION_DATE = "subscription_date";
 }

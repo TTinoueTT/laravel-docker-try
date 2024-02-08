@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models\Old;
+namespace App\Models\Old\Payment;
 
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class OldDocomoPurchase extends BaseModel
+class OldRakutenPurchase extends BaseModel
 {
     use HasFactory;
 
@@ -21,7 +21,7 @@ class OldDocomoPurchase extends BaseModel
      * 別の名前を明示的に指定しない限り、クラスの複数形の「スネークケース」をテーブル名として使用
      * @var string
      */
-    protected $table = 'docomo_purchases';
+    protected $table = 'rakuten_purchases';
 
     /**
      * モデルにタイムスタンプを付けるか
@@ -38,28 +38,16 @@ class OldDocomoPurchase extends BaseModel
     protected $attributes = [
         self::USER_ID => null,
         self::history_id => null,
-        self::status => 0,
+        self::order_cart_id => null,
+        self::order_control_id => null,
         self::price => 0,
-        self::cp_token => '',
-        self::cp_order_no => '',
-        self::cp_processing_time => '',
-        self::cp_param => '',
-        self::transaction_type => '',
-        self::docomo_token => '',
-        self::docomo_order_no => '',
-        self::docomo_auth_time => date("Y-m-d H:i:s"),
+        self::itemcd => '',
     ];
 
     const USER_ID = "user_id";
     const history_id = "history_id";
-    const status = "status";
+    const order_cart_id = "order_cart_id";
+    const order_control_id = "order_control_id";
     const price = "price";
-    const cp_token = "cp_token";
-    const cp_order_no = "cp_order_no";
-    const cp_processing_time = "cp_processing_time";
-    const cp_param = "cp_param";
-    const transaction_type = "transaction_type";
-    const docomo_token = "docomo_token";
-    const docomo_order_no = "docomo_order_no";
-    const docomo_auth_time = "docomo_auth_time";
+    const itemcd = "itemcd";
 }

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models\Old;
+namespace App\Models\Old\Payment;
 
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class OldOpenIdProfile extends BaseModel
+class OldSoftbankPurchase extends BaseModel
 {
     use HasFactory;
 
@@ -21,7 +21,7 @@ class OldOpenIdProfile extends BaseModel
      * 別の名前を明示的に指定しない限り、クラスの複数形の「スネークケース」をテーブル名として使用
      * @var string
      */
-    protected $table = 'open_id_profiles';
+    protected $table = 'softbank_purchases';
 
     /**
      * モデルにタイムスタンプを付けるか
@@ -37,11 +37,27 @@ class OldOpenIdProfile extends BaseModel
      */
     protected $attributes = [
         self::USER_ID => null,
-        self::CLAIMED_ID => '',
-        self::CARRIER_TYPE => 0,
+        self::HISTORY_ID => null,
+        self::OUR_STATUS => 0,
+        self::MANAGE_NO => '',
+        self::AMOUNT => 0,
+        self::CP_NOTE => '',
+        self::TRANSACTION_ID => '',
+        self::ORDER_NO => '',
+        self::PURCHASE_DAY => date("Y-m-d H:i:s"),
+        self::RESULT_STATUS => '',
+        self::STATUS_CODE => 0,
     ];
 
     const USER_ID = "user_id";
-    const CLAIMED_ID = "claimed_id";
-    const CARRIER_TYPE = "carrier_type";
+    const HISTORY_ID = "history_id";
+    const OUR_STATUS = "our_status";
+    const MANAGE_NO = "manage_no";
+    const AMOUNT = "amount";
+    const CP_NOTE = "cp_note";
+    const TRANSACTION_ID = "transaction_id";
+    const ORDER_NO = "order_no";
+    const PURCHASE_DAY = "purchase_day";
+    const RESULT_STATUS = "result_status";
+    const STATUS_CODE = "status_code";
 }

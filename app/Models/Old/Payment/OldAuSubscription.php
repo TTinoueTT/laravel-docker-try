@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Models\Old;
+namespace App\Models\Old\Payment;
 
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class OldAmazonPayBillingAgreement extends BaseModel
+class OldAuSubscription extends BaseModel
 {
     use HasFactory;
+
     /**
      * このモデルが使用するデータベース接続
      *
@@ -20,7 +21,7 @@ class OldAmazonPayBillingAgreement extends BaseModel
      * 別の名前を明示的に指定しない限り、クラスの複数形の「スネークケース」をテーブル名として使用
      * @var string
      */
-    protected $table = 'amazon_pay_billing_agreements';
+    protected $table = 'au_subscriptions';
 
     /**
      * モデルにタイムスタンプを付けるか
@@ -36,19 +37,23 @@ class OldAmazonPayBillingAgreement extends BaseModel
      */
     protected $attributes = [
         self::USER_ID => null,
-        self::AMAZON_BILLING_AGREEMENT_ID => '',
-        self::SELLER_BILLING_AGREEMENT_ID => '',
-        self::STATUS => null,
-        self::STATE_UPDATE_TIME => date("Y-m-d H:i:s"),
-        self::STATE_REASON => '',
+        self::OUR_STATUS => 0,
+        self::MANAGE_NO => '',
+        self::AMOUNT => 0,
+        self::TRANSACTION_ID => '',
+        self::CONTINUE_ACCOUNT_ID => '',
+        self::RESULT_CODE => '',
+        self::PROCESS_DAY => date("Y-m-d H:i:s"),
         self::CANCELLED_AT => date("Y-m-d H:i:s"),
     ];
 
     const USER_ID = "user_id";
-    const AMAZON_BILLING_AGREEMENT_ID = "amazon_billing_agreement_id";
-    const SELLER_BILLING_AGREEMENT_ID = "seller_billing_agreement_id";
-    const STATUS = "status";
-    const STATE_UPDATE_TIME = "state_update_time";
-    const STATE_REASON = "state_reason";
+    const OUR_STATUS = "our_status";
+    const MANAGE_NO = "manage_no";
+    const AMOUNT = "amount";
+    const TRANSACTION_ID = "transaction_id";
+    const CONTINUE_ACCOUNT_ID = "continue_account_id";
+    const RESULT_CODE = "result_code";
+    const PROCESS_DAY = "process_day";
     const CANCELLED_AT = "cancelled_at";
 }
