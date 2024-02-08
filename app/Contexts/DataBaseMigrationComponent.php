@@ -3,6 +3,7 @@
 namespace App\Contexts;
 
 use App\Models\Old\OldUser;
+use App\Models\Next\NextUser;
 use App\Models\Old\OldProfile;
 use App\Models\Old\OldUserData;
 use App\Services\ProfileServices;
@@ -35,6 +36,10 @@ class DataBaseMigrationComponent
 
                 # profile の取得
                 $this->profileServices->migrate_old_to_new($user);
+
+                // new DB の user 読み込み
+                $nextUser = NextUser::find(1);
+                Log::info("users external_id: {$nextUser->external_id}");
 
                 # targetProfile の取得
 

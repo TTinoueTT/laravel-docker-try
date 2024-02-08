@@ -1,20 +1,19 @@
 <?php
 
-namespace App\Models\Old;
+namespace App\Models\Next;
 
 use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class OldUser extends BaseModel
+class NextUser extends BaseModel
 {
     use HasFactory;
-
     /**
      * このモデルが使用するデータベース接続
      *
      * @var string
      */
-    protected $connection = 'mysql_old';
+    protected $connection = 'mysql_new';
 
     /**
      * モデルに関連付けるテーブル、tableプロパティを定義してモデルのテーブル名を自分で指定できる
@@ -37,15 +36,12 @@ class OldUser extends BaseModel
      */
     protected $attributes = []; // デフォルト値を空の配列で初期化
 
-    const EMAIL = "email";
-    const ENCRYPTED_PASSWORD = "encrypted_password";
-    const REF_FROM = "ref_from";
-    const REF_CATE = "ref_cate";
-    const REF_U_ID = "ref_u_id";
-    const SIGN_IN_COUNT = "sign_in_count";
-    const REF_AD_ID = "ref_ad_id";
+    const EXTERNAL_ID = "external_id";
+    const INTEREST_TYPE = "interest_type";
+    const PAYMENT_TYPE = "payment_type";
+    const PREFER_PROFILE_ID = "prefer_profile_id";
+    const PREFER_TARGET_PROFILE_ID = "prefer_target_profile_id";
     const MIGRATION_CODE = "migration_code";
-    const INTENT = "intent";
     const MAIL_ADDRESS = "mail_address";
     const NOTIFICATION = "notification";
     const NOTIFICATION_OPTOUT_AT = "notification_optout_at";
@@ -54,14 +50,12 @@ class OldUser extends BaseModel
     public function __construct($attributes = [])
     {
         $this->attributes = [
-            self::EMAIL => '',
-            self::ENCRYPTED_PASSWORD => '',
-            self::REF_FROM => '',
-            self::REF_CATE => '',
-            self::REF_U_ID => '',
-            self::REF_AD_ID => '',
+            self::EXTERNAL_ID => '',
+            self::INTEREST_TYPE => '',
+            self::PAYMENT_TYPE => '',
+            self::PREFER_PROFILE_ID => '',
+            self::PREFER_TARGET_PROFILE_ID => '',
             self::MIGRATION_CODE => '',
-            self::INTENT => 1,
             self::MAIL_ADDRESS => '',
             self::NOTIFICATION => 1,
             self::NOTIFICATION_OPTOUT_AT => date("Y-m-d H:i:s"),
@@ -71,11 +65,11 @@ class OldUser extends BaseModel
 
     public function profiles()
     {
-        return $this->hasMany(OldProfile::class, OldProfile::USER_ID);
+        // return $this->hasMany(OldProfile::class, OldProfile::USER_ID);
     }
 
     public function target_profiles()
     {
-        return $this->hasMany(OldTargetProfile::class, OldTargetProfile::USER_ID);
+        // return $this->hasMany(OldTargetProfile::class, OldTargetProfile::USER_ID);
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Models\Old;
 
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
-class OldRakutenSubscription extends Model
+class OldRakutenSubscription extends BaseModel
 {
     use HasFactory;
 

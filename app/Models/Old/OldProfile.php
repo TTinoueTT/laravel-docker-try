@@ -2,10 +2,11 @@
 
 namespace App\Models\Old;
 
+use App\Models\BaseModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class OldProfile extends Model
+class OldProfile extends BaseModel
 {
     use HasFactory;
 
