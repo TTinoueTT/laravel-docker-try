@@ -51,10 +51,10 @@ class NextUser extends BaseModel
     {
         $this->attributes = [
             self::EXTERNAL_ID => '',
-            self::INTEREST_TYPE => '',
-            self::PAYMENT_TYPE => '',
-            self::PREFER_PROFILE_ID => '',
-            self::PREFER_TARGET_PROFILE_ID => '',
+            self::INTEREST_TYPE => 1,
+            self::PAYMENT_TYPE => -1,
+            self::PREFER_PROFILE_ID => -1,
+            self::PREFER_TARGET_PROFILE_ID => -1,
             self::MIGRATION_CODE => '',
             self::MAIL_ADDRESS => '',
             self::NOTIFICATION => 1,
@@ -65,11 +65,22 @@ class NextUser extends BaseModel
 
     public function profiles()
     {
-        // return $this->hasMany(OldProfile::class, OldProfile::USER_ID);
+        return $this->hasMany(NextProfile::class, NextProfile::USER_ID)->where(NextProfile::TYPE, 1);
     }
 
     public function target_profiles()
     {
-        // return $this->hasMany(OldTargetProfile::class, OldTargetProfile::USER_ID);
+        return $this->hasMany(NextProfile::class, NextProfile::USER_ID)->where(NextProfile::TYPE, 2);
+    }
+
+    public function users_analyses()
+    {
+        // user と users_analyses のレコードは 1対１ の関係
+        return $this->hasOne(NextUserAnalysis::class, NextUserAnalysis::USER_ID);
+    }
+
+    public function uses_datas()
+    {
+        return $this->hasOne(NextUserData::class, NextUserData::USER_ID);
     }
 }

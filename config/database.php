@@ -109,7 +109,7 @@ return [
             'url' => env('DATABASE_URL', ''),
             'host' => env('DB_DEVELOPMENT_HOST', '127.0.0.1'),
             'port' => "3306",
-            'database' => env('NEW_DATABASE'),
+            'database' => env('NEW_PAYMENT_DATABASE'),
             'username' => env('NEW_USERNAME'),
             'password' => env('DB_DEVELOPMENT_PASSWORD', 'password'),
             'unix_socket' => '',
