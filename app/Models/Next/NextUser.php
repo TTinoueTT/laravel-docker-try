@@ -63,6 +63,10 @@ class NextUser extends BaseModel
         ];
     }
 
+    /**
+     * hasMany
+     */
+
     public function profiles()
     {
         return $this->hasMany(NextProfile::class, NextProfile::USER_ID)->where(NextProfile::TYPE, 1);
@@ -73,13 +77,33 @@ class NextUser extends BaseModel
         return $this->hasMany(NextProfile::class, NextProfile::USER_ID)->where(NextProfile::TYPE, 2);
     }
 
+    public function bookmarks()
+    {
+        return $this->hasMany(NextBookmark::class, NextBookmark::USER_ID);
+    }
+
+    public function histories()
+    {
+        return $this->hasMany(NextHistory::class, NextHistory::USER_ID);
+    }
+
+    public function unsubscribe_reasons()
+    {
+        return $this->hasMany(NextUnsubscribeReason::class, NextUnsubscribeReason::USER_ID);
+    }
+
+
+    /**
+     * hasOne
+     */
+
     public function users_analyses()
     {
         // user と users_analyses のレコードは 1対１ の関係
         return $this->hasOne(NextUserAnalysis::class, NextUserAnalysis::USER_ID);
     }
 
-    public function uses_datas()
+    public function users_datas()
     {
         return $this->hasOne(NextUserData::class, NextUserData::USER_ID);
     }
