@@ -2,8 +2,10 @@
 
 namespace App\Models\Next\Payment;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\BaseModel;
+use App\Models\Old\OldUser;
+use App\Models\Old\Payment\OldAmazonPayOrderReference;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class NextAmazonPayOrderReference extends BaseModel
 {
@@ -51,4 +53,19 @@ class NextAmazonPayOrderReference extends BaseModel
     const ORDER_REFERENCE_STATE = "order_reference_state";
     const ORDER_REFERENCE_REASON_CODE = "order_reference_reason_code";
     const PARAMS = "params";
+
+    public function oldToNew(OldAmazonPayOrderReference $old, NextAmazonPayOrderReference $new, OldUser $oldUser): NextAmazonPayOrderReference
+    {
+        $new->open_id = $oldUser->email;
+        $new->billing_agreement_id = $old->billing_agreement_id;
+        $new->amazon_order_reference_id = $old->amazon_order_reference_id;
+        $new->price = $oldUser->order_amount;
+        $new->order_reference_state = $oldUser->status;
+        $new->order_reference_reason_code = $oldUser->state_reason;
+        // TODO: $new->params = createParams();
+        $new->created_at = $oldUser->created_at;
+        $new->updated_at = $oldUser->updated_at;
+
+        return $new;
+    }
 }

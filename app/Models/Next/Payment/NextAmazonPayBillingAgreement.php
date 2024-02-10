@@ -4,6 +4,8 @@ namespace App\Models\Next\Payment;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\BaseModel;
+use App\Models\Old\OldUser;
+use App\Models\Old\Payment\OldAmazonPayBillingAgreement;
 
 class NextAmazonPayBillingAgreement extends BaseModel
 {
@@ -51,4 +53,26 @@ class NextAmazonPayBillingAgreement extends BaseModel
     const BILLING_AGREEMENT_REASON_CODE = "billing_agreement_reason_code";
     const CANCELLED_AT = "cancelled_at";
     const PARAMS = "params";
+
+    /**
+     * Undocumented function
+     *
+     * @param OldAmazonPayBillingAgreement $old
+     * @param NextAmazonPayBillingAgreement $new
+     * @param OldUser $oldUser
+     * @return NextAmazonPayBillingAgreement
+     */
+    public function oldToNew(OldAmazonPayBillingAgreement $old, NextAmazonPayBillingAgreement $new, OldUser $oldUser): NextAmazonPayBillingAgreement
+    {
+        $new->open_id = $oldUser->email;
+        $new->amazon_billing_agreement_id = $old->amazon_billing_agreement_id;
+        $new->seller_billing_agreement_id = $old->seller_billing_agreement_id;
+        $new->billing_agreement_state = $oldUser->status;
+        $new->billing_agreement_reason_code = $oldUser->state_reason;
+        $new->cancelled_at = $oldUser->cancelled_at;
+        $new->created_at = $oldUser->created_at;
+        $new->updated_at = $oldUser->updated_at;
+
+        return $new;
+    }
 }

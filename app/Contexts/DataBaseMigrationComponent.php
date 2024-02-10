@@ -6,7 +6,7 @@ use App\Models\Old\OldUser;
 use App\Models\Next\NextUser;
 use App\Models\Old\OldProfile;
 use App\Models\Old\OldUserData;
-use App\Services\ProfileServices;
+use App\Services\ProfileService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Collection;
 class DataBaseMigrationComponent
 {
     private $profileServices;
-    public function __construct(ProfileServices $profileServices)
+    public function __construct(ProfileService $profileServices)
     {
         // DI の実行
         $this->profileServices = $profileServices;
@@ -23,7 +23,7 @@ class DataBaseMigrationComponent
 
     public function migrate_exec(): void
     {
-        $repeatTime = 10;
+        $repeatTime = 1;
         $counter = 0;
         Log::info("start database migrate execution");
 
@@ -35,11 +35,15 @@ class DataBaseMigrationComponent
                 Log::info("users id: {$user->id}");
 
                 # profile の取得
-                $this->profileServices->migrate_old_to_new($user);
+                $this->profileServices->migrateOldToNew($user);
+
+                $nextUser = new NextUser();
 
                 // new DB の user 読み込み
                 $nextUser = NextUser::find(1);
                 Log::info("users external_id: {$nextUser->external_id}");
+
+                NextUser::created($nextUser);
 
                 # targetProfile の取得
 

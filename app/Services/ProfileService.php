@@ -7,9 +7,9 @@ use App\Models\Old\OldProfile;
 
 use Illuminate\Support\Facades\Log;
 
-final class ProfileServices
+final class ProfileService implements IMigrateService
 {
-    public function migrate_old_to_new(BaseModel $user): void
+    public function migrateOldToNew(BaseModel $user): void
     {
         $profiles = $user->profiles;
         // OldProfile::ID
