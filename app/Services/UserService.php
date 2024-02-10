@@ -92,7 +92,7 @@ final class UserService implements IMigrateService
         $paymentType = PaymentType::UNKNOWN;
         // SOFTBANK
         if ($paymentType == PaymentType::UNKNOWN) {
-            // $paymentType = $this->amazonPayService->migrateOldToNew($oldUser);
+            $paymentType = $this->softPaymentService->migrateOldToNew($oldUser);
         }
         // AU
         if ($paymentType == PaymentType::UNKNOWN) {

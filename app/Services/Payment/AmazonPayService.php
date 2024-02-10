@@ -19,14 +19,14 @@ final class AmazonPayService implements IMigrateService
     {
         $this->nextAmazonPayBillingAgreement = $nextAmazonPayBillingAgreement;
     }
-    public function migrateOldToNew(BaseModel $OldUser): int
+    public function migrateOldToNew(BaseModel $oldUser): int
     {
-        if (!$OldUser instanceof OldUser) {
+        if (!$oldUser instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
         }
 
         // AmazonPay に関するレコードを取得して新規レコードに追加
-        $billingAgreements = $OldUser->amazonPayBillingAgreements()->get();
+        $billingAgreements = $oldUser->amazonPayBillingAgreements()->get();
         if ($billingAgreements->isEmpty()) {
             Log::info("No billing agreements found.");
             return PaymentType::UNKNOWN;
@@ -34,7 +34,7 @@ final class AmazonPayService implements IMigrateService
             $lastBillingAgreement = $billingAgreements->last();
             // $lastBillingAgreement を使用した処理...
             $new = new NextAmazonPayBillingAgreement();
-            $new->open_id = $OldUser->email;
+            $new->open_id = $oldUser->email;
             $new->amazon_billing_agreement_id = $lastBillingAgreement->amazon_billing_agreement_id;
             $new->seller_billing_agreement_id = $lastBillingAgreement->seller_billing_agreement_id;
             $new->billing_agreement_state = $lastBillingAgreement->status;
