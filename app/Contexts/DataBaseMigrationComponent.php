@@ -11,7 +11,7 @@ use App\Services\UserService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
-
+use RuntimeException;
 
 class DataBaseMigrationComponent
 {
@@ -26,11 +26,13 @@ class DataBaseMigrationComponent
 
     public function migrate_exec(): void
     {
-        $repeatTime = 1;
+        $repeatTime = 5;
         $counter = 0;
         Log::info("start database migrate execution");
 
-        DB::beginTransaction();
+        DB::connection('mysql_old')->beginTransaction();
+        DB::connection('mysql_new')->beginTransaction();
+        DB::connection('mysql_new_payment')->beginTransaction();
 
         try {
             OldUser::chunk($repeatTime, function (Collection $users) use ($repeatTime, $counter) {
@@ -39,15 +41,15 @@ class DataBaseMigrationComponent
 
                     // users レコードの移行
                     Log::info("users id: {$user->id}");
-                    $this->userService->migrateOldToNew($user);
+                    // $this->userService->migrateOldToNew($user);
 
                     # profile の取得
-                    // $this->profileServices->migrateOldToNew($user);
+                    $this->profileServices->migrateOldToNew($user);
 
                     // new DB の user 読み込み
                     // $nextUser = NextUser::find(1);
                     // Log::info("users external_id: {$nextUser->external_id}");
-                    NextUser::where(NextUser::EXTERNAL_ID, $user->email)->first();
+                    // NextUser::where(NextUser::EXTERNAL_ID, $user->email)->first();
 
                     # targetProfile の取得
 
@@ -69,10 +71,22 @@ class DataBaseMigrationComponent
                     }
                 }
             });
-            DB::commit();
+
+            // すべての操作が成功したら、各トランザクションをコミット
+            DB::connection('mysql_old')->commit();
+            DB::connection('mysql_new')->commit();
+            DB::connection('mysql_new_payment')->commit();
         } catch (\Exception $e) {
-            DB::rollBack();
+            // エラーが発生した場合は、全てのトランザクションをロールバック
+            DB::connection('mysql_old')->rollBack();
+            DB::connection('mysql_new')->rollBack();
+            DB::connection('mysql_new_payment')->rollBack();
             //throw $th;
+            // エラーメッセージと例外の詳細をログに記録
+            Log::error('トランザクション失敗:', ['message' => $e->getMessage(), 'exception' => $e]);
+
+            // 必要に応じてカスタム例外を投げる
+            throw new RuntimeException("トランザクション中にエラーが発生しました。", 0, $e);
         }
 
 
