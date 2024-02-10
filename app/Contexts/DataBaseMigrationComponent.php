@@ -39,12 +39,17 @@ class DataBaseMigrationComponent
                 // 処理回数を追跡するカウンタ
                 foreach ($users as $user) {
 
+                    // TODO: 練習用に修正
+                    if ($user->id != 3) {
+                        continue;
+                    }
+
                     // users レコードの移行
                     Log::info("users id: {$user->id}");
-                    // $this->userService->migrateOldToNew($user);
+                    $nextUser = $this->userService->migrateOldToNew($user);
 
                     # profile の取得
-                    $this->profileServices->migrateOldToNew($user);
+                    $this->profileServices->migrateOldToNewWithNew($user, $nextUser);
 
                     // new DB の user 読み込み
                     // $nextUser = NextUser::find(1);

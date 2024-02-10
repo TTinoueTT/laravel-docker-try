@@ -37,16 +37,16 @@ final class UserService implements IMigrateService
         $this->rakutenPayService = $rakutenPayService;
     }
 
-    public function migrateOldToNew(BaseModel $user)
+    public function migrateOldToNew(BaseModel $user): NextUser
     {
         if (!$user instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
         }
         $nextUser = new NextUser();
-        Log::info("--- new NextUser()");
-        Log::info($nextUser);
+        // Log::info("--- new NextUser()");
+        // Log::info($nextUser);
         $nextUser->external_id = $user->email;
-        Log::info($user);
+        // Log::info($user);
         $nextUser->interest_type = $this->exchangeIntent($user->intent);
         /*
         * payment_type の値は、profile, history のデータを入れたのちに挿入するため、初期は入れない
@@ -66,6 +66,8 @@ final class UserService implements IMigrateService
         } else {
             Log::error("Failed to save the user.");
         }
+
+        return $nextUser;
     }
 
     /**
