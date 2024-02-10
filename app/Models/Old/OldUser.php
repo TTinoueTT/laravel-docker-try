@@ -5,6 +5,17 @@ namespace App\Models\Old;
 use App\Models\BaseModel;
 
 use App\Models\Old\Payment\OldAmazonPayBillingAgreement;
+use App\Models\Old\Payment\OldAmazonPayOrderReference;
+use App\Models\Old\Payment\OldAuPurchase;
+use App\Models\Old\Payment\OldAuSubscription;
+use App\Models\Old\Payment\OldDocomoPurchase;
+use App\Models\Old\Payment\OldDocomoSubscription;
+use App\Models\Old\Payment\OldDocomoSuid;
+use App\Models\Old\Payment\OldOpenIdProfile;
+use App\Models\Old\Payment\OldRakutenPurchase;
+use App\Models\Old\Payment\OldRakutenSubscription;
+use App\Models\Old\Payment\OldSoftbankPurchase;
+use App\Models\Old\Payment\OldSoftbankSubscription;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OldUser extends BaseModel
@@ -86,8 +97,66 @@ class OldUser extends BaseModel
         return $this->hasMany(OldHistory::class, OldHistory::USER_ID);
     }
 
+    /*
+    * ここから決済系のリレーション
+    */
+    public function softbankSubscriptions()
+    {
+        return $this->hasMany(OldSoftbankSubscription::class, OldSoftbankSubscription::USER_ID);
+    }
+
+    public function softbankPurchases()
+    {
+        return $this->hasMany(OldSoftbankPurchase::class, OldSoftbankPurchase::USER_ID);
+    }
+
+    public function auSubscriptions()
+    {
+        return $this->hasMany(OldAuSubscription::class, OldAuSubscription::USER_ID);
+    }
+
+    public function auPurchases()
+    {
+        return $this->hasMany(OldAuPurchase::class, OldAuPurchase::USER_ID);
+    }
+
+    public function docomoSubscriptions()
+    {
+        return $this->hasMany(OldDocomoSubscription::class, OldDocomoSubscription::USER_ID);
+    }
+
+    public function docomoPurchases()
+    {
+        return $this->hasMany(OldDocomoPurchase::class, OldDocomoPurchase::USER_ID);
+    }
+
+    public function docomoSuids()
+    {
+        return $this->hasMany(OldDocomoSuid::class, OldDocomoSuid::USER_ID);
+    }
+
+    public function openIdProfiles()
+    {
+        return $this->hasMany(OldOpenIdProfile::class, OldOpenIdProfile::USER_ID);
+    }
+
+    public function rakutenSubscriptions()
+    {
+        return $this->hasMany(OldRakutenSubscription::class, OldRakutenSubscription::USER_ID);
+    }
+
+    public function rakutenPurchases()
+    {
+        return $this->hasMany(OldRakutenPurchase::class, OldRakutenSubscription::USER_ID);
+    }
+
     public function amazonPayBillingAgreements()
     {
         return $this->hasMany(OldAmazonPayBillingAgreement::class, OldAmazonPayBillingAgreement::USER_ID);
+    }
+
+    public function amazonPayOrderReferences()
+    {
+        return $this->hasMany(OldAmazonPayOrderReference::class, OldAmazonPayOrderReference::USER_ID);
     }
 }
