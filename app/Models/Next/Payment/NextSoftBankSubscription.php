@@ -56,6 +56,6 @@ class NextSoftBankSubscription extends BaseModel
     const ORDER_NO = "order_no";
     const REGIST_STATUS = "regist_status";
     const RESULT_STATUS = "result_status";
-    const STATUS_CODE = "docomo_purchase_status";
+    const STATUS_CODE = "status_code";
     const PARAMS = "params";
 }
