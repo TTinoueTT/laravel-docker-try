@@ -3,18 +3,45 @@
 namespace App\Services;
 
 use App\Models\BaseModel;
+use App\Models\Next\NextHistory;
 use App\Models\Old\OldHistory;
 use App\Models\Old\OldUser;
+use App\Models\Next\NextUser;
 
 final class HistoryService implements IMigrateService
 {
     public function migrateOldToNew(BaseModel $user)
     {
+        // if (!$user instanceof OldUser) {
+        //     throw new \InvalidArgumentException('Expected an instance of OldUser');
+        // }
+
+        // $histories = $user->histories()->orderBy('created_at', 'desc')->get();
+    }
+
+    public function migrateOldToNewWithNew(BaseModel $user, NextUser $NextUser): void
+    {
         if (!$user instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
         }
 
+        $histories = $user->histories()->orderBy('created_at', 'desc')->get();
+
         // TODO: History に関するレコードを取得して新規レコードに追加
+        foreach ($histories as $history) {
+            $new = new NextHistory();
+            $new->user_id = $NextUser->id;
+            $new = $this->oldToNew($history, $new);
+        }
+    }
+
+    private function oldToNew(BaseModel $old, NextHistory $new)
+    {
+        $new->itemcd = $old->itemcd;
+        // TODO: 先に　NextUser の　payment_type を登録する必要がある。
+        // $new->payment_type = $new
+
+        return $new;
     }
 
     public function createParams(int $historyId)

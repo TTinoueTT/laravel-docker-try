@@ -44,12 +44,14 @@ class DataBaseMigrationComponent
                         continue;
                     }
 
-                    // users レコードの移行
+                    # users レコードの移行
                     Log::info("users id: {$user->id}");
                     $nextUser = $this->userService->migrateOldToNew($user);
 
-                    # profile の取得
+                    # profile の移行
                     $this->profileServices->migrateOldToNewWithNew($user, $nextUser);
+
+                    # history の移行
 
                     // new DB の user 読み込み
                     // $nextUser = NextUser::find(1);

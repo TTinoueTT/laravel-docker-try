@@ -3,6 +3,8 @@
 namespace App\Models\Old;
 
 use App\Models\BaseModel;
+
+use App\Models\Old\Payment\OldAmazonPayBillingAgreement;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class OldUser extends BaseModel
@@ -74,8 +76,18 @@ class OldUser extends BaseModel
         return $this->hasMany(OldProfile::class, OldProfile::USER_ID);
     }
 
-    public function target_profiles()
+    public function targetProfiles()
     {
         return $this->hasMany(OldTargetProfile::class, OldTargetProfile::USER_ID);
+    }
+
+    public function histories()
+    {
+        return $this->hasMany(OldHistory::class, OldHistory::USER_ID);
+    }
+
+    public function amazonPayBillingAgreements()
+    {
+        return $this->hasMany(OldAmazonPayBillingAgreement::class, OldAmazonPayBillingAgreement::USER_ID);
     }
 }

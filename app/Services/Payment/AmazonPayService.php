@@ -2,12 +2,14 @@
 
 namespace App\Services\Payment;
 
+use App\Enums\PaymentType;
 use App\Models\BaseModel;
 use App\Models\Next\Payment\NextAmazonPayBillingAgreement;
 use App\Models\Old\OldUser;
 use App\Models\Old\Payment\OldAmazonPayBillingAgreement;
 use App\Models\Old\Payment\OldAmazonPayOrderReference;
 use App\Services\IMigrateService;
+use Illuminate\Support\Facades\Log;
 
 final class AmazonPayService implements IMigrateService
 {
@@ -17,18 +19,43 @@ final class AmazonPayService implements IMigrateService
     {
         $this->nextAmazonPayBillingAgreement = $nextAmazonPayBillingAgreement;
     }
-    public function migrateOldToNew(BaseModel $user)
+    public function migrateOldToNew(BaseModel $OldUser): int
     {
-        if (!$user instanceof OldUser) {
+        if (!$OldUser instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
         }
 
-        // TODO: AmazonPay に関するレコードを取得して新規レコードに追加
-        $billingAgreement = OldAmazonPayBillingAgreement::where(OldAmazonPayBillingAgreement::USER_ID, $user->id)->first();
-        if (!$billingAgreement) {
-            $this->nextAmazonPayBillingAgreement->oldToNew($billingAgreement, new NextAmazonPayBillingAgreement(), $user);
-        }
+        // AmazonPay に関するレコードを取得して新規レコードに追加
+        $billingAgreements = $OldUser->amazonPayBillingAgreements()->get();
+        if ($billingAgreements->isEmpty()) {
+            Log::info("No billing agreements found.");
+            return PaymentType::UNKNOWN;
+        } else {
+            $lastBillingAgreement = $billingAgreements->last();
+            // $lastBillingAgreement を使用した処理...
+            $new = new NextAmazonPayBillingAgreement();
+            $new->open_id = $OldUser->email;
+            $new->amazon_billing_agreement_id = $lastBillingAgreement->amazon_billing_agreement_id;
+            $new->seller_billing_agreement_id = $lastBillingAgreement->seller_billing_agreement_id;
+            $new->billing_agreement_state = $lastBillingAgreement->status;
+            $new->billing_agreement_reason_code = $lastBillingAgreement->state_reason;
+            $new->cancelled_at = $lastBillingAgreement->cancelled_at;
+            $new->created_at = $lastBillingAgreement->created_at;
+            $new->updated_at = $lastBillingAgreement->updated_at;
 
+            if ($new->save()) {
+                Log::info("billing agreement saved successfully.", ['open_id' => $new->open_id]);
+            } else {
+                Log::error("Failed to save the billing agreement.");
+            }
+
+            return PaymentType::AMAZON;
+        }
+    }
+
+
+    public function migratePurchase(BaseModel $user)
+    {
         $orderReferences = OldAmazonPayOrderReference::where(OldAmazonPayOrderReference::USER_ID, $user->id);
         foreach ($orderReferences as $order) {
             # code...

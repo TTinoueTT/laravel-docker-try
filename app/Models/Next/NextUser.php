@@ -73,7 +73,7 @@ class NextUser extends BaseModel
         return $this->hasMany(NextProfile::class, NextProfile::USER_ID)->where(NextProfile::TYPE, 1);
     }
 
-    public function target_profiles()
+    public function targetProfiles()
     {
         return $this->hasMany(NextProfile::class, NextProfile::USER_ID)->where(NextProfile::TYPE, 2);
     }
