@@ -36,15 +36,7 @@ class NextAmazonPayBillingAgreement extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::OPEN_ID => '',
-        self::AMAZON_BILLING_AGREEMENT_ID => '',
-        self::SELLER_BILLING_AGREEMENT_ID => '',
-        self::BILLING_AGREEMENT_STATE => 0,
-        self::BILLING_AGREEMENT_REASON_CODE => '',
-        self::CANCELLED_AT => date("Y-m-d H:i:s"),
-        self::PARAMS => '[]',
-    ];
+    protected $attributes = []; // デフォルト値を空の配列で初期化
 
     const OPEN_ID = "open_id";
     const AMAZON_BILLING_AGREEMENT_ID = "amazon_billing_agreement_id";
@@ -53,6 +45,21 @@ class NextAmazonPayBillingAgreement extends BaseModel
     const BILLING_AGREEMENT_REASON_CODE = "billing_agreement_reason_code";
     const CANCELLED_AT = "cancelled_at";
     const PARAMS = "params";
+
+    public function __construct($attributes = [])
+    {
+        parent::__construct($attributes); // BaseModelのコンストラクタを呼び出す場合
+
+        $this->attributes = [
+            self::OPEN_ID => '',
+            self::AMAZON_BILLING_AGREEMENT_ID => '',
+            self::SELLER_BILLING_AGREEMENT_ID => '',
+            self::BILLING_AGREEMENT_STATE => 0,
+            self::BILLING_AGREEMENT_REASON_CODE => '',
+            self::CANCELLED_AT => date("Y-m-d H:i:s"),
+            self::PARAMS => '[]',
+        ];
+    }
 
     /**
      * Undocumented function

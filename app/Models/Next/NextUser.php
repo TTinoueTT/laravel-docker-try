@@ -49,6 +49,7 @@ class NextUser extends BaseModel
 
     public function __construct($attributes = [])
     {
+        parent::__construct($attributes);
         $this->attributes = [
             self::EXTERNAL_ID => '',
             self::INTEREST_TYPE => 1,
