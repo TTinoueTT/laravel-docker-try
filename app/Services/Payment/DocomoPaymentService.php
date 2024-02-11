@@ -81,7 +81,7 @@ final class DocomoPaymentService implements IMigrateService
 
         $new = new NextDocomoSuid();
 
-        $new->open_id = $openIdProfile->claimed_id;
+        $new->open_id = $openIdProfile->open_id;
         $new->suid = $suidData->suid;
         $new->guid = $suidData->guid;
         $new->created_at = $suidData->created_at;

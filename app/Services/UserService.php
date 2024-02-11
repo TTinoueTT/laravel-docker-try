@@ -49,15 +49,8 @@ final class UserService implements IMigrateService
         $nextUser->interest_type = $this->exchangeIntent($oldUser->intent);
         $nextUser->payment_type = $this->findAndSavePaymentType($oldUser);
 
-        if (in_array($nextUser->payment_type, OpenIdCarrierType::getValues())) {
-            $openIdProfile = $oldUser->openIdProfiles()->get()->first();
-            if (is_null($openIdProfile)) {
-                Log::error("openIdProfile is null");
-            }
-            $nextUser->external_id = $openIdProfile->claimed_id;
-        } else {
-            $nextUser->external_id = $oldUser->email;
-        }
+        $this->setExternalId($nextUser, $oldUser);
+
         $nextUser->migration_code = isset($oldUser->migration_code) ? $oldUser->migration_code : RandomComponent::Generate(12);
         $nextUser->mail_address = $oldUser->mail_address;
         $nextUser->notification = $oldUser->notification;
@@ -76,6 +69,28 @@ final class UserService implements IMigrateService
     }
 
     /**
+     * 各決済キャリアの継続課金データをもとにセット
+     * @param NextUser $nextUser
+     * @param OldUser $oldUser
+     * @return void
+     */
+    private function setExternalId(NextUser $nextUser, OldUser $oldUser)
+    {
+        if (in_array($nextUser->payment_type, OpenIdCarrierType::getValues())) {
+            $openIdProfile = $oldUser->openIdProfiles()->get()->first();
+            if (is_null($openIdProfile)) {
+                Log::error("openIdProfile is null");
+            }
+            $nextUser->external_id = $openIdProfile->claimed_id;
+        } elseif ($nextUser->payment_type == PaymentType::RAKUTEN) {
+            $rakutenSubscription = $oldUser->rakutenSubscriptions()->get()->last();
+            $nextUser->external_id = $rakutenSubscription->open_id;
+        } else {
+            $nextUser->external_id = $oldUser->email;
+        }
+    }
+
+    /**
      * Ruby に登録している intent を interest_type に変更
      * @param integer $intent 二進数の値
      * @return integer 10進数に変換して
@@ -86,8 +101,30 @@ final class UserService implements IMigrateService
             return 1;
         }
 
-        $binaryString = "{$intent}";
-        return bindec($binaryString);
+        switch ($intent) {
+            case 101000:
+                # ["仕事"]
+                return 1;
+
+            case 110000:
+                # "結婚"
+                return 2;
+
+            case 100100:
+                # "片想い"
+                return 3;
+
+            case 100010:
+                # "不倫"
+                return 4;
+
+            case 100001:
+                # "復縁"
+                return 5;
+
+            default:
+                return 1;
+        }
     }
 
     /**
@@ -120,8 +157,6 @@ final class UserService implements IMigrateService
         if ($paymentType == PaymentType::UNKNOWN) {
             $paymentType = $this->amazonPayService->migrateOldToNew($oldUser);
         }
-
-        //Todo: openId_profiles を移行
 
         return $paymentType;
     }
