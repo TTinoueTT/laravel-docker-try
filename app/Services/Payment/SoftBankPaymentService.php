@@ -5,8 +5,11 @@ namespace App\Services\Payment;
 use App\Enums\OpenIdCarrierType;
 use App\Enums\PaymentType;
 use App\Models\BaseModel;
+use App\Models\Next\NextUser;
+use App\Models\Next\Payment\NextSoftBankPurchase;
 use App\Models\Next\Payment\NextSoftBankSubscription;
 use App\Models\Old\OldUser;
+use App\Models\Old\Payment\OldSoftbankPurchase;
 use App\Services\IMigrateService;
 
 use Illuminate\Support\Facades\Log;
@@ -19,6 +22,7 @@ final class SoftBankPaymentService implements IMigrateService
     {
         $this->openIdService = $openIdService;
     }
+
     public function migrateOldToNew(BaseModel $oldUser)
     {
         if (!$oldUser instanceof OldUser) {
@@ -54,6 +58,32 @@ final class SoftBankPaymentService implements IMigrateService
             }
 
             return PaymentType::SOFTBANK;
+        }
+    }
+
+    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, string $jsonParams)
+    {
+        $new = new NextSoftBankPurchase();
+        $purchases = $oldUser->softbankPurchases()->get();
+
+        foreach ($purchases as $oldPurchase) {
+            $new->open_id = $nextUser->external_id;
+            $new->rsa_status = $oldPurchase->our_status + 1;
+            $new->rsa_item_id = $oldPurchase->manage_no;
+            $new->price = $oldPurchase->amount;
+            $new->transaction_id = $oldPurchase->transaction_id;
+            $new->order_no = $oldPurchase->order_no;
+            $new->result_status = $oldPurchase->result_status;
+            $new->status_code = $oldPurchase->status_code;
+            $new->created_at = $oldPurchase->created_at;
+            $new->updated_at = $oldPurchase->updated_at;
+            $new->params = $jsonParams;
+
+            if ($new->save()) {
+                Log::info("softbank purchase saved successfully.", ['open_id' => $new->open_id]);
+            } else {
+                Log::error("Failed to save the softbank purchase.");
+            }
         }
     }
 }

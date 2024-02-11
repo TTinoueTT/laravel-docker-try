@@ -35,17 +35,7 @@ class NextSoftBankPurchase extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::OPEN_ID => '',
-        self::RSA_STATUS => 0,
-        self::RSA_ITEM_ID => '',
-        self::PRICE => 0,
-        self::TRANSACTION_ID => '',
-        self::ORDER_NO => '',
-        self::RESULT_STATUS => '',
-        self::STATUS_CODE => '',
-        self::PARAMS => '[]',
-    ];
+    protected $attributes = [];
 
     const OPEN_ID = "open_id";
     const RSA_STATUS = "rsa_status";
@@ -54,6 +44,21 @@ class NextSoftBankPurchase extends BaseModel
     const TRANSACTION_ID = "transaction_id";
     const ORDER_NO = "order_no";
     const RESULT_STATUS = "result_status";
-    const STATUS_CODE = "docomo_purchase_status";
+    const STATUS_CODE = "status_code";
     const PARAMS = "params";
+
+    public function __construct($attributes = [])
+    {
+        $this->attributes = [
+            self::OPEN_ID => '',
+            self::RSA_STATUS => 0,
+            self::RSA_ITEM_ID => '',
+            self::PRICE => 0,
+            self::TRANSACTION_ID => '',
+            self::ORDER_NO => '',
+            self::RESULT_STATUS => '',
+            self::STATUS_CODE => '',
+            self::PARAMS => '[]',
+        ];
+    }
 }
