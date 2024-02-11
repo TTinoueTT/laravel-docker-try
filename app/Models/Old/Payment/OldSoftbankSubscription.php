@@ -35,19 +35,7 @@ class OldSoftbankSubscription extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::USER_ID => null,
-        self::OUR_STATUS => 0,
-        self::REGIST_STATUS => 0,
-        self::MANAGE_NO => '',
-        self::AMOUNT => 0,
-        self::CP_NOTE => '',
-        self::TRANSACTION_ID => '',
-        self::ORDER_NO => '',
-        self::PURCHASE_DAY => date("Y-m-d H:i:s"),
-        self::RESULT_STATUS => '',
-        self::STATUS_CODE => 0,
-    ];
+    protected $attributes = [];
 
     const USER_ID = "user_id";
     const OUR_STATUS = "our_status";
@@ -60,4 +48,21 @@ class OldSoftbankSubscription extends BaseModel
     const PURCHASE_DAY = "purchase_day";
     const RESULT_STATUS = "result_status";
     const STATUS_CODE = "status_code";
+
+    public function __construct($attributes = [])
+    {
+        $this->attributes = [
+            self::USER_ID => null,
+            self::OUR_STATUS => 0,
+            self::REGIST_STATUS => 0,
+            self::MANAGE_NO => '',
+            self::AMOUNT => 0,
+            self::CP_NOTE => '',
+            self::TRANSACTION_ID => '',
+            self::ORDER_NO => '',
+            self::PURCHASE_DAY => date("Y-m-d H:i:s"),
+            self::RESULT_STATUS => '',
+            self::STATUS_CODE => 0,
+        ];
+    }
 }

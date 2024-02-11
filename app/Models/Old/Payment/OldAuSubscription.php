@@ -35,17 +35,7 @@ class OldAuSubscription extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::USER_ID => null,
-        self::OUR_STATUS => 0,
-        self::MANAGE_NO => '',
-        self::AMOUNT => 0,
-        self::TRANSACTION_ID => '',
-        self::CONTINUE_ACCOUNT_ID => '',
-        self::RESULT_CODE => '',
-        self::PROCESS_DAY => date("Y-m-d H:i:s"),
-        self::CANCELLED_AT => date("Y-m-d H:i:s"),
-    ];
+    protected $attributes = [];
 
     const USER_ID = "user_id";
     const OUR_STATUS = "our_status";
@@ -56,4 +46,19 @@ class OldAuSubscription extends BaseModel
     const RESULT_CODE = "result_code";
     const PROCESS_DAY = "process_day";
     const CANCELLED_AT = "cancelled_at";
+
+    public function __construct($attributes = [])
+    {
+        $this->attributes = [
+            self::USER_ID => null,
+            self::OUR_STATUS => 0,
+            self::MANAGE_NO => '',
+            self::AMOUNT => 0,
+            self::TRANSACTION_ID => '',
+            self::CONTINUE_ACCOUNT_ID => '',
+            self::RESULT_CODE => '',
+            self::PROCESS_DAY => date("Y-m-d H:i:s"),
+            self::CANCELLED_AT => date("Y-m-d H:i:s"),
+        ];
+    }
 }

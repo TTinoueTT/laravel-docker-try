@@ -34,15 +34,7 @@ class OldAmazonPayBillingAgreement extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::USER_ID => null,
-        self::AMAZON_BILLING_AGREEMENT_ID => '',
-        self::SELLER_BILLING_AGREEMENT_ID => '',
-        self::STATUS => null,
-        self::STATE_UPDATE_TIME => date("Y-m-d H:i:s"),
-        self::STATE_REASON => '',
-        self::CANCELLED_AT => date("Y-m-d H:i:s"),
-    ];
+    protected $attributes = [];
 
     const USER_ID = "user_id";
     const AMAZON_BILLING_AGREEMENT_ID = "amazon_billing_agreement_id";
@@ -51,4 +43,17 @@ class OldAmazonPayBillingAgreement extends BaseModel
     const STATE_UPDATE_TIME = "state_update_time";
     const STATE_REASON = "state_reason";
     const CANCELLED_AT = "cancelled_at";
+
+    public function __construct($attributes = [])
+    {
+        $this->attributes = [
+            self::USER_ID => null,
+            self::AMAZON_BILLING_AGREEMENT_ID => '',
+            self::SELLER_BILLING_AGREEMENT_ID => '',
+            self::STATUS => null,
+            self::STATE_UPDATE_TIME => date("Y-m-d H:i:s"),
+            self::STATE_REASON => '',
+            self::CANCELLED_AT => date("Y-m-d H:i:s"),
+        ];
+    }
 }

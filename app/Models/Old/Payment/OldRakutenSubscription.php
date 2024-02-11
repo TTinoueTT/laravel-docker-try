@@ -35,17 +35,7 @@ class OldRakutenSubscription extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::USER_ID => null,
-        self::OPEN_ID => '',
-        self::STATUS => 0,
-        self::SERVICE_ID => 0,
-        self::ORDER_CONTROL_ID => '',
-        self::AUTH_REQUEST_ID => '',
-        self::SUBSCRIPTION_ID => '',
-        self::SUBSCRIPTION_DATE => date("Y-m-d H:i:s"),
-
-    ];
+    protected $attributes = [];
 
     const USER_ID = "user_id";
     const OPEN_ID = "open_id";
@@ -55,4 +45,18 @@ class OldRakutenSubscription extends BaseModel
     const AUTH_REQUEST_ID = "auth_request_id";
     const SUBSCRIPTION_ID = "subscription_id";
     const SUBSCRIPTION_DATE = "subscription_date";
+
+    public function __construct($attributes = [])
+    {
+        $this->attributes = [
+            self::USER_ID => null,
+            self::OPEN_ID => '',
+            self::STATUS => 0,
+            self::SERVICE_ID => 0,
+            self::ORDER_CONTROL_ID => '',
+            self::AUTH_REQUEST_ID => '',
+            self::SUBSCRIPTION_ID => '',
+            self::SUBSCRIPTION_DATE => date("Y-m-d H:i:s"),
+        ];
+    }
 }

@@ -132,12 +132,12 @@ class OldUser extends BaseModel
 
     public function docomoSuids()
     {
-        return $this->hasMany(OldDocomoSuid::class, OldDocomoSuid::USER_ID);
+        return $this->hasOne(OldDocomoSuid::class, OldDocomoSuid::USER_ID);
     }
 
     public function openIdProfiles()
     {
-        return $this->hasMany(OldOpenIdProfile::class, OldOpenIdProfile::USER_ID);
+        return $this->hasOne(OldOpenIdProfile::class, OldOpenIdProfile::USER_ID);
     }
 
     public function rakutenSubscriptions()

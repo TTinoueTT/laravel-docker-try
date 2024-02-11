@@ -35,31 +35,37 @@ class OldDocomoSubscription extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::USER_ID => null,
-        self::request_type => 0,
-        self::status => 0,
-        self::docomo_status => 199,
-        self::cp_token => '',
-        self::cp_order_no => '',
-        self::cp_processing_time => date("Y-m-d H:i:s"),
-        self::cp_param => '',
-        self::transaction_type => '',
-        self::docomo_token => '',
-        self::docomo_order_no => '',
-        self::docomo_auth_time => date("Y-m-d H:i:s"),
-    ];
+    protected $attributes = [];
 
     const USER_ID = "user_id";
-    const request_type = "request_type";
-    const status = "status";
-    const docomo_status = "docomo_status";
-    const cp_token = "cp_token";
-    const cp_order_no = "cp_order_no";
-    const cp_processing_time = "cp_processing_time";
-    const cp_param = "cp_param";
-    const transaction_type = "transaction_type";
-    const docomo_token = "docomo_token";
-    const docomo_order_no = "docomo_order_no";
-    const docomo_auth_time = "docomo_auth_time";
+    const REQUEST_TYPE = "request_type";
+    const STATUS = "status";
+    const DOCOMO_STATUS = "docomo_status";
+    const CP_TOKEN = "cp_token";
+    const CP_ORDER_NO = "cp_order_no";
+
+    const CP_PROCESSING_TIME = "cp_processing_time";
+    const CP_PARAM = "cp_param";
+    const TRANSACTION_TYPE = "transaction_type";
+    const DOCOMO_TOKEN = "docomo_token";
+    const DOCOMO_ORDER_NO = "docomo_order_no";
+    const DOCOMO_AUTH_TIME = "docomo_auth_time";
+
+    public function __construct($attributes = [])
+    {
+        $this->attributes = [
+            self::USER_ID => null,
+            self::REQUEST_TYPE => 0,
+            self::STATUS => 0,
+            self::DOCOMO_STATUS => 199,
+            self::CP_TOKEN => '',
+            self::CP_ORDER_NO => '',
+            self::CP_PROCESSING_TIME => date("Y-m-d H:i:s"),
+            self::CP_PARAM => '',
+            self::TRANSACTION_TYPE => '',
+            self::DOCOMO_TOKEN => '',
+            self::DOCOMO_ORDER_NO => '',
+            self::DOCOMO_AUTH_TIME => date("Y-m-d H:i:s"),
+        ];
+    }
 }
