@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Enums\OpenIdCarrierType;
 use App\Enums\PaymentType;
 use App\Models\BaseModel;
 use App\Models\Next\Payment\NextSoftBankSubscription;
@@ -12,6 +13,12 @@ use Illuminate\Support\Facades\Log;
 
 final class SoftBankPaymentService implements IMigrateService
 {
+    private $openIdService;
+
+    public function __construct(OpenIdService $openIdService)
+    {
+        $this->openIdService = $openIdService;
+    }
     public function migrateOldToNew(BaseModel $oldUser)
     {
         if (!$oldUser instanceof OldUser) {
@@ -20,13 +27,14 @@ final class SoftBankPaymentService implements IMigrateService
 
         $subscriptions = $oldUser->softbankSubscriptions()->get();
         if ($subscriptions->isEmpty()) {
-            Log::info("No billing agreements found.");
+            Log::info("No softbank subscriptions found  => process is continue .... ");
             return PaymentType::UNKNOWN;
         } else {
             $lastSubscription = $subscriptions->last();
+            $openIdProfile = $this->openIdService->migrateOldToNewWithCarrier($oldUser, OpenIdCarrierType::SOFTBANK);
 
             $new = new NextSoftBankSubscription();
-            $new->open_id = $oldUser->email;
+            $new->open_id = $openIdProfile->claimed_id;
             $new->rsa_status = $lastSubscription->our_status;
             $new->rsa_item_id = $lastSubscription->manage_no;
             $new->price = $lastSubscription->amount;

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contexts\RandomComponent;
+use App\Enums\OpenIdCarrierType;
 use App\Enums\PaymentType;
 use App\Models\BaseModel;
 use App\Models\Old\OldUser;
@@ -38,23 +39,32 @@ final class UserService implements IMigrateService
         $this->rakutenPayService = $rakutenPayService;
     }
 
-    public function migrateOldToNew(BaseModel $user): NextUser
+    public function migrateOldToNew(BaseModel $oldUser): NextUser
     {
-        if (!$user instanceof OldUser) {
+        if (!$oldUser instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
         }
         $nextUser = new NextUser();
 
-        $nextUser->external_id = $user->email;
-        $nextUser->interest_type = $this->exchangeIntent($user->intent);
-        $nextUser->payment_type = $this->findAndSavePaymentType($user);
-        $nextUser->migration_code = isset($user->migration_code) ? $user->migration_code : RandomComponent::Generate(12);
-        $nextUser->mail_address = $user->mail_address;
-        $nextUser->notification = $user->notification;
-        $nextUser->notification_optout_at = isset($user->notification_optout_at) ? $user->notification_optout_at : Carbon::create(1000, 1, 1, 0, 0, 0);
-        $nextUser->notification_optin_at = isset($user->notification_optin_at) ? $user->notification_optin_at : Carbon::create(1000, 1, 1, 0, 0, 0);
-        $nextUser->created_at = $user->created_at;
-        $nextUser->updated_at = $user->updated_at;
+        $nextUser->interest_type = $this->exchangeIntent($oldUser->intent);
+        $nextUser->payment_type = $this->findAndSavePaymentType($oldUser);
+
+        if (in_array($nextUser->payment_type, OpenIdCarrierType::getValues())) {
+            $openIdProfile = $oldUser->openIdProfiles()->get()->first();
+            if (is_null($openIdProfile)) {
+                Log::error("openIdProfile is null");
+            }
+            $nextUser->external_id = $openIdProfile->claimed_id;
+        } else {
+            $nextUser->external_id = $oldUser->email;
+        }
+        $nextUser->migration_code = isset($oldUser->migration_code) ? $oldUser->migration_code : RandomComponent::Generate(12);
+        $nextUser->mail_address = $oldUser->mail_address;
+        $nextUser->notification = $oldUser->notification;
+        $nextUser->notification_optout_at = isset($oldUser->notification_optout_at) ? $oldUser->notification_optout_at : Carbon::create(1000, 1, 1, 0, 0, 0);
+        $nextUser->notification_optin_at = isset($oldUser->notification_optin_at) ? $oldUser->notification_optin_at : Carbon::create(1000, 1, 1, 0, 0, 0);
+        $nextUser->created_at = $oldUser->created_at;
+        $nextUser->updated_at = $oldUser->updated_at;
 
         if ($nextUser->save()) {
             Log::info("User saved successfully.", ['user_id' => $nextUser->id]);
@@ -96,20 +106,22 @@ final class UserService implements IMigrateService
         }
         // AU
         if ($paymentType == PaymentType::UNKNOWN) {
-            // $paymentType = $this->amazonPayService->migrateOldToNew($oldUser);
+            $paymentType = $this->auPaymentService->migrateOldToNew($oldUser);
         }
         // DOCOMO
         if ($paymentType == PaymentType::UNKNOWN) {
-            // $paymentType = $this->amazonPayService->migrateOldToNew($oldUser);
+            $paymentType = $this->docomoPaymentService->migrateOldToNew($oldUser);
         }
         // RAKUTEN
         if ($paymentType == PaymentType::UNKNOWN) {
-            // $paymentType = $this->amazonPayService->migrateOldToNew($oldUser);
+            $paymentType = $this->rakutenPayService->migrateOldToNew($oldUser);
         }
         // AMAZON
         if ($paymentType == PaymentType::UNKNOWN) {
             $paymentType = $this->amazonPayService->migrateOldToNew($oldUser);
         }
+
+        //Todo: openId_profiles を移行
 
         return $paymentType;
     }

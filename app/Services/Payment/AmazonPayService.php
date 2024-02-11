@@ -28,7 +28,7 @@ final class AmazonPayService implements IMigrateService
         // AmazonPay に関するレコードを取得して新規レコードに追加
         $billingAgreements = $oldUser->amazonPayBillingAgreements()->get();
         if ($billingAgreements->isEmpty()) {
-            Log::info("No billing agreements found.");
+            Log::info("No billing agreements found  => process is continue .... ");
             return PaymentType::UNKNOWN;
         } else {
             $lastBillingAgreement = $billingAgreements->last();
