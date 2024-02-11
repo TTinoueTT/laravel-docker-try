@@ -34,7 +34,7 @@ final class SoftBankPaymentService implements IMigrateService
             $openIdProfile = $this->openIdService->migrateOldToNewWithCarrier($oldUser, OpenIdCarrierType::SOFTBANK);
 
             $new = new NextSoftBankSubscription();
-            $new->open_id = $openIdProfile->claimed_id;
+            $new->open_id = $openIdProfile->open_id;
             $new->rsa_status = $lastSubscription->our_status;
             $new->rsa_item_id = $lastSubscription->manage_no;
             $new->price = $lastSubscription->amount;

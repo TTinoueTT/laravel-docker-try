@@ -26,7 +26,7 @@ class DataBaseMigrationComponent
 
     public function migrate_exec(): void
     {
-        $repeatTime = 5;
+        $repeatTime = 200;
         $counter = 0;
         Log::info("start database migrate execution");
 
@@ -40,7 +40,15 @@ class DataBaseMigrationComponent
                 foreach ($users as $user) {
 
                     // TODO: 練習用に修正
-                    if ($user->id != 3) {
+                    /*
+                    * user_id
+                    * => 3 AmazonPay
+                    * => 5 Docomo
+                    * => 11 Au
+                    * => 190 Softbank
+                    * => 22 Rakuten
+                    */
+                    if ($user->id != 22) {
                         continue;
                     }
 

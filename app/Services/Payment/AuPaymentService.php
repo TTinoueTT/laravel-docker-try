@@ -35,7 +35,7 @@ final class AuPaymentService implements IMigrateService
             $openIdProfile = $this->openIdService->migrateOldToNewWithCarrier($oldUser, OpenIdCarrierType::AU);
 
             $new = new NextAuSubscription();
-            $new->open_id = $openIdProfile->claimed_id;
+            $new->open_id = $openIdProfile->open_id;
             $new->rsa_status = $lastSubscription->our_status;
             $new->rsa_item_id = $lastSubscription->manage_no;
             $new->price = $lastSubscription->amount;
