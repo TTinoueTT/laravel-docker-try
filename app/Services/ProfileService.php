@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Dto\MigrateProfileIdMapDto;
+use App\Dto\Partial\MigrateIdMapDto;
+
 use App\Models\BaseModel;
 use App\Models\Next\NextProfile;
 use App\Models\Next\NextUser;
@@ -9,6 +12,7 @@ use App\Models\Old\OldTargetProfile;
 use App\Models\Old\OldUser;
 use App\Models\Old\OldHistory;
 use App\Models\Old\OldProfile;
+
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -28,9 +32,9 @@ final class ProfileService implements IMigrateService
      * プロフィール情報を移行する。
      * @param BaseModel $oldUser
      * @param NextUser $NextUser
-     * @return void
+     * @return MigrateProfileIdMapDto
      */
-    public function migrateOldToNewWithNew(BaseModel $oldUser, NextUser $NextUser): void
+    public function migrateOldToNewWithNew(BaseModel $oldUser, NextUser $NextUser): MigrateProfileIdMapDto
     {
         $profiles = $oldUser->profiles()->get();
         $this->ensureProfileConsistency($profiles, $oldUser);
@@ -38,6 +42,7 @@ final class ProfileService implements IMigrateService
         $targetProfiles = $oldUser->targetProfiles()->get();
         $this->ensureTargetProfileConsistency($targetProfiles, $oldUser);
 
+        $singleMap = [];
         foreach ($profiles as $old) {
             $new = new NextProfile();
             $new->user_id = $NextUser->id;
@@ -52,8 +57,11 @@ final class ProfileService implements IMigrateService
             // }
 
             log::info("profile id : #{$old->id}");
+
+            array_push($singleMap, new MigrateIdMapDto($new->id, $old->id));
         }
 
+        $targetMap = [];
         foreach ($targetProfiles as $oldTarget) {
             $new = new NextProfile();
             $new->user_id = $NextUser->id;
@@ -68,7 +76,11 @@ final class ProfileService implements IMigrateService
             // }
 
             log::info("target_profile id : #{$oldTarget->id}");
+
+            array_push($targetMap, new MigrateIdMapDto($new->id, $old->id));
         }
+
+        return new MigrateProfileIdMapDto($singleMap, $targetMap);
     }
 
     /**

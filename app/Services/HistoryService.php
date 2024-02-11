@@ -2,14 +2,43 @@
 
 namespace App\Services;
 
+use App\Dto\MigrateProfileIdMapDto;
+use App\Enums\PaymentType;
 use App\Models\BaseModel;
 use App\Models\Next\NextHistory;
 use App\Models\Old\OldHistory;
 use App\Models\Old\OldUser;
 use App\Models\Next\NextUser;
 
+use App\Services\Payment\AmazonPayService;
+use App\Services\Payment\AuPaymentService;
+use App\Services\Payment\SoftBankPaymentService;
+use App\Services\Payment\DocomoPaymentService;
+use App\Services\Payment\RakutenPayService;
+
+use Illuminate\Support\Facades\Log;
+
 final class HistoryService implements IMigrateService
 {
+    private  $amazonPayService;
+    private  $auPaymentService;
+    private  $softPaymentService;
+    private  $docomoPaymentService;
+    private  $rakutenPayService;
+
+    public function __construct(
+        AmazonPayService $amazonPayService,
+        AuPaymentService $auPaymentService,
+        SoftBankPaymentService $softPaymentService,
+        DocomoPaymentService $docomoPaymentService,
+        RakutenPayService $rakutenPayService
+    ) {
+        $this->amazonPayService = $amazonPayService;
+        $this->auPaymentService = $auPaymentService;
+        $this->softPaymentService = $softPaymentService;
+        $this->docomoPaymentService = $docomoPaymentService;
+        $this->rakutenPayService = $rakutenPayService;
+    }
     public function migrateOldToNew(BaseModel $user)
     {
         // if (!$user instanceof OldUser) {
@@ -19,29 +48,82 @@ final class HistoryService implements IMigrateService
         // $histories = $user->histories()->orderBy('created_at', 'desc')->get();
     }
 
-    public function migrateOldToNewWithNew(BaseModel $user, NextUser $NextUser): void
+    /**
+     * Undocumented function
+     * @param BaseModel $oldUser
+     * @param NextUser $nextUser
+     * @return void
+     */
+    public function migrateOldToNewWithNew(BaseModel $oldUser, NextUser $nextUser, MigrateProfileIdMapDto $migrateProfileIdMap): void
     {
-        if (!$user instanceof OldUser) {
+        if (!$oldUser instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
         }
 
-        $histories = $user->histories()->orderBy('created_at', 'desc')->get();
+        $histories = $oldUser->histories()->orderBy('created_at', 'desc')->get();
 
-        // TODO: History に関するレコードを取得して新規レコードに追加
         foreach ($histories as $history) {
-            $new = new NextHistory();
-            $new->user_id = $NextUser->id;
-            $new = $this->oldToNew($history, $new);
+            if ($history->is_free == 1) {
+                continue;
+            }
+
+            $new = $this->oldToNew($history, new NextHistory(), $nextUser, $migrateProfileIdMap);
+
+            if ($new->save()) {
+                Log::info("saved successfully.", ['history_id' => $new->id]);
+            } else {
+                Log::error("Failed to save the history.");
+            }
+
+            // 決済注文レコードの移行をこのあたりで行う
+            $this->savePaymentOrder($nextUser->payment_type);
         }
     }
 
-    private function oldToNew(BaseModel $old, NextHistory $new)
-    {
+    /**
+     * 旧情報を新情報に移行
+     * @param BaseModel $old
+     * @param NextHistory $new
+     * @return NextHistory
+     */
+    private function oldToNew(
+        BaseModel $old,
+        NextHistory $new,
+        NextUser $nextUser,
+        MigrateProfileIdMapDto $migrateProfileIdMap
+    ): NextHistory {
+        $new->user_id = $nextUser->id;
         $new->itemcd = $old->itemcd;
-        // TODO: 先に　NextUser の　payment_type を登録する必要がある。
-        // $new->payment_type = $new
+        $new->payment_type = $nextUser->payment_type;
+        $new->content_key = "NMA";
+
+        $migrateProfileIdMap->getSingle();
+        foreach ($migrateProfileIdMap->getSingle() as $migrateIdMapDto) {
+            if ($old->profile_id == $migrateIdMapDto->getOld()) {
+                $new->profile_id = $migrateIdMapDto->getNew();
+            }
+        }
+
+        foreach ($migrateProfileIdMap->getTarget() as $migrateIdMapDto) {
+            if ($old->target_profile_id == $migrateIdMapDto->getOld()) {
+                $new->target_profile_id = $migrateIdMapDto->getNew();
+            }
+        }
 
         return $new;
+    }
+
+    private function savePaymentOrder(int $paymentType)
+    {
+        switch ($paymentType) {
+            case PaymentType::SOFTBANK:
+                # code...
+                break;
+
+            default:
+                # code...
+                break;
+        }
     }
 
     public function createParams(int $historyId)

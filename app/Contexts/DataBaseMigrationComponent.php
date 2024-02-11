@@ -6,6 +6,7 @@ use App\Models\Old\OldUser;
 use App\Models\Next\NextUser;
 use App\Models\Old\OldProfile;
 use App\Models\Old\OldUserData;
+use App\Services\HistoryService;
 use App\Services\ProfileService;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Log;
@@ -16,12 +17,14 @@ use RuntimeException;
 class DataBaseMigrationComponent
 {
     private $userService;
-    private $profileServices;
-    public function __construct(ProfileService $profileServices, UserService $userService)
+    private $profileService;
+    private $historyService;
+
+    public function __construct(ProfileService $profileService, UserService $userService, HistoryService $historyService)
     {
-        // DI の実行
         $this->userService = $userService;
-        $this->profileServices = $profileServices;
+        $this->profileService = $profileService;
+        $this->historyService = $historyService;
     }
 
     public function migrate_exec(): void
@@ -57,9 +60,11 @@ class DataBaseMigrationComponent
                     $nextUser = $this->userService->migrateOldToNew($user);
 
                     # profile の移行
-                    $this->profileServices->migrateOldToNewWithNew($user, $nextUser);
+                    $migrateProfileIdMap = $this->profileService->migrateOldToNewWithNew($user, $nextUser);
 
                     # history の移行
+                    $this->historyService;
+
 
                     // new DB の user 読み込み
                     // $nextUser = NextUser::find(1);
