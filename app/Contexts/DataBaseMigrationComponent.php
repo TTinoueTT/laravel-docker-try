@@ -48,7 +48,7 @@ class DataBaseMigrationComponent
                     * => 190 Softbank
                     * => 22 Rakuten
                     */
-                    if ($user->id != 5) {
+                    if ($user->id != 3) {
                         continue;
                     }
 
