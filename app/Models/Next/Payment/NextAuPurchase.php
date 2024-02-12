@@ -35,16 +35,7 @@ class NextAuPurchase extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::OPEN_ID => '',
-        self::RSA_STATUS => 0,
-        self::RSA_ITEM_ID => '',
-        self::PRICE => 0,
-        self::TRANSACTION_ID => '',
-        self::PAY_INFO_NO => '',
-        self::RESULT_CODE => '',
-        self::PARAMS => '[]',
-    ];
+    protected $attributes = [];
 
     const OPEN_ID = "open_id";
     const RSA_STATUS = "rsa_status";
@@ -54,4 +45,18 @@ class NextAuPurchase extends BaseModel
     const PAY_INFO_NO = "pay_info_no";
     const RESULT_CODE = "result_code";
     const PARAMS = "params";
+
+    public function __construct($attributes = [])
+    {
+        $this->attributes = [
+            self::OPEN_ID => '',
+            self::RSA_STATUS => 0,
+            self::RSA_ITEM_ID => '',
+            self::PRICE => 0,
+            self::TRANSACTION_ID => '',
+            self::PAY_INFO_NO => '',
+            self::RESULT_CODE => '',
+            self::PARAMS => '[]',
+        ];
+    }
 }

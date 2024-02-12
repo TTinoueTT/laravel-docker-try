@@ -50,8 +50,8 @@ class NextHistory extends BaseModel
             self::ITEMCD => '',
             self::PAYMENT_TYPE => 0,
             self::CONTENT_KEY => '',
-            self::PROFILE_ID => 0,
-            self::TARGET_PROFILE_ID => 0,
+            self::PROFILE_ID => null,
+            self::TARGET_PROFILE_ID => null,
         ];
     }
 

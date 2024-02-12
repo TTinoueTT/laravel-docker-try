@@ -35,15 +35,7 @@ class NextRakutenPurchase extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::OPEN_ID => '',
-        self::ORDER_CART_ID => '',
-        self::ORDER_CONTROL_ID => '',
-        self::PRICE => 0,
-        self::RSA_ITEM_ID => '',
-        self::STATE => 0,
-        self::PARAMS => '[]',
-    ];
+    protected $attributes = [];
 
     const OPEN_ID = "open_id";
     const ORDER_CART_ID = "order_cart_id";
@@ -52,4 +44,17 @@ class NextRakutenPurchase extends BaseModel
     const RSA_ITEM_ID = "rsa_item_id";
     const STATE = "state";
     const PARAMS = "params";
+
+    public function __construct($attributes = [])
+    {
+        $this->attributes = [
+            self::OPEN_ID => '',
+            self::ORDER_CART_ID => '',
+            self::ORDER_CONTROL_ID => '',
+            self::PRICE => 0,
+            self::RSA_ITEM_ID => '',
+            self::STATE => 0,
+            self::PARAMS => '[]',
+        ];
+    }
 }

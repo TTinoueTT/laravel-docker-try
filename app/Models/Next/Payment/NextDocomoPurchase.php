@@ -34,18 +34,7 @@ class NextDocomoPurchase extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::OPEN_ID => '',
-        self::RSA_STATUS => 0,
-        self::PRICE => 0,
-        self::CP_TOKEN => '',
-        self::CP_ORDER_NO => '',
-        self::RSA_ITEM_ID => '',
-        self::DOCOMO_PURCHASE_STATUS => '',
-        self::DOCOMO_TOKEN => '',
-        self::DOCOMO_AUTH_TIME =>  date("Y-m-d H:i:s"),
-        self::PARAMS => '[]',
-    ];
+    protected $attributes = [];
 
     const OPEN_ID = "open_id";
     const RSA_STATUS = "rsa_status";
@@ -57,4 +46,20 @@ class NextDocomoPurchase extends BaseModel
     const DOCOMO_TOKEN = "docomo_token";
     const DOCOMO_AUTH_TIME = "docomo_auth_time";
     const PARAMS = "params";
+
+    public function __construct($attributes = [])
+    {
+        $this->attributes = [
+            self::OPEN_ID => '',
+            self::RSA_STATUS => 0,
+            self::PRICE => 0,
+            self::CP_TOKEN => '',
+            self::CP_ORDER_NO => '',
+            self::RSA_ITEM_ID => '',
+            self::DOCOMO_PURCHASE_STATUS => '',
+            self::DOCOMO_TOKEN => '',
+            self::DOCOMO_AUTH_TIME =>  date("Y-m-d H:i:s"),
+            self::PARAMS => '[]',
+        ];
+    }
 }
