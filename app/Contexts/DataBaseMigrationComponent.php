@@ -65,9 +65,9 @@ class DataBaseMigrationComponent
                     * => 5 Docomo
                     * => 11 Au
                     * => 190 Softbank
-                    * => 22 Rakuten
+                    * => 22, 21 Rakuten
                     */
-                    if ($oldUser->id != 25) {
+                    if ($oldUser->id != 22) {
                         continue;
                     }
 
@@ -75,11 +75,11 @@ class DataBaseMigrationComponent
                     Log::info("users id: {$oldUser->id}");
                     $nextUser = $this->userService->migrateOldToNew($oldUser);
 
-                    # profile の移行(旧profile情報の重複も考慮)
-                    //TODO $migrateProfileIdMap = $this->profileService->migrateOldToNewWithNew($oldUser, $nextUser);
+                    # TODO profile の移行(旧profile情報の重複も考慮)
+                    $migrateProfileIdMap = $this->profileService->migrateOldToNewWithNew($oldUser, $nextUser);
 
-                    # history の移行(決済注文レコードの移行も)
-                    //TODO $this->historyService->migrateOldToNewWithNew($oldUser, $nextUser, $migrateProfileIdMap);
+                    # TODO history の移行(決済注文レコードの移行も)
+                    $this->historyService->migrateOldToNewWithNew($oldUser, $nextUser, $migrateProfileIdMap);
 
                     # bookmark の移行
                     $this->bookmarkService->migrateOldToNewWithNew($oldUser, $nextUser);

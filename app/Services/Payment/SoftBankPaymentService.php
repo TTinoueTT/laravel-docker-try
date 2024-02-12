@@ -39,7 +39,7 @@ final class SoftBankPaymentService implements IMigrateService
 
             $new = new NextSoftBankSubscription();
             $new->open_id = $openIdProfile->open_id;
-            $new->rsa_status = $lastSubscription->our_status;
+            $new->rsa_status = $lastSubscription->our_status + 1;
             $new->rsa_item_id = $lastSubscription->manage_no;
             $new->price = $lastSubscription->amount;
             $new->transaction_id = $lastSubscription->transaction_id;

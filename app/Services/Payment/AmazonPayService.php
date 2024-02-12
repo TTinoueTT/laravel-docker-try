@@ -4,7 +4,9 @@ namespace App\Services\Payment;
 
 use App\Enums\PaymentType;
 use App\Models\BaseModel;
+use App\Models\Next\NextUser;
 use App\Models\Next\Payment\NextAmazonPayBillingAgreement;
+use App\Models\Next\Payment\NextAmazonPayOrderReference;
 use App\Models\Old\OldUser;
 use App\Models\Old\Payment\OldAmazonPayBillingAgreement;
 use App\Models\Old\Payment\OldAmazonPayOrderReference;
@@ -54,11 +56,27 @@ final class AmazonPayService implements IMigrateService
     }
 
 
-    public function migratePurchase(BaseModel $user)
+    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, string $jsonParams)
     {
-        $orderReferences = OldAmazonPayOrderReference::where(OldAmazonPayOrderReference::USER_ID, $user->id);
-        foreach ($orderReferences as $order) {
-            # code...
+        $new = new NextAmazonPayOrderReference();
+        $purchases = $oldUser->amazonPayOrderReferences()->get();
+
+        foreach ($purchases as $oldPurchase) {
+            $new->open_id = $nextUser->external_id;
+            $new->billing_agreement_id = $oldPurchase->billing_agreement_id;
+            $new->amazon_order_reference_id = $oldPurchase->amazon_order_reference_id;
+            $new->price = $oldPurchase->order_amount;
+            $new->order_reference_state = $oldPurchase->status;
+            $new->order_reference_reason_code = $oldPurchase->state_reason;
+            $new->created_at = $oldPurchase->created_at;
+            $new->updated_at = $oldPurchase->updated_at;
+            $new->params = $jsonParams;
+
+            if ($new->save()) {
+                Log::info("amazon purchase saved successfully.", ['open_id' => $new->open_id]);
+            } else {
+                Log::error("Failed to save the amazon purchase.");
+            }
         }
     }
 }

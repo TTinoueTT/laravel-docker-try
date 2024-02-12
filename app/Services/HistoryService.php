@@ -41,11 +41,6 @@ final class HistoryService implements IMigrateService
     }
     public function migrateOldToNew(BaseModel $user)
     {
-        // if (!$user instanceof OldUser) {
-        //     throw new \InvalidArgumentException('Expected an instance of OldUser');
-        // }
-
-        // $histories = $user->histories()->orderBy('created_at', 'desc')->get();
     }
 
     /**
@@ -105,7 +100,7 @@ final class HistoryService implements IMigrateService
         }
 
         foreach ($migrateProfileIdMap->getTarget() as $migrateIdMapDto) {
-            if ($old->target_profile_id == $migrateIdMapDto->getOld()) {
+            if ($old->target_profile_id > 0 || $old->target_profile_id == $migrateIdMapDto->getOld()) {
                 $new->target_profile_id = $migrateIdMapDto->getNew();
             }
         }
@@ -121,20 +116,20 @@ final class HistoryService implements IMigrateService
                 $this->softbankPaymentService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
                 break;
             case PaymentType::AU:
-                // $this->createParams($nextHistory, $nextUser);
-                // $this->auPaymentService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
+                $this->createParams($nextHistory, $nextUser);
+                $this->auPaymentService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
                 break;
             case PaymentType::DOCOMO:
-                // $this->createParams($nextHistory, $nextUser);
-                // $this->docomoPaymentService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
+                $this->createParams($nextHistory, $nextUser);
+                $this->docomoPaymentService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
                 break;
             case PaymentType::RAKUTEN:
-                // $this->createParams($nextHistory, $nextUser);
-                // $this->rakutenPayService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
+                $this->createParams($nextHistory, $nextUser);
+                $this->rakutenPayService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
                 break;
             case PaymentType::AMAZON:
-                // $this->createParams($nextHistory, $nextUser);
-                // $this->amazonPayService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
+                $this->createParams($nextHistory, $nextUser);
+                $this->amazonPayService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
                 break;
 
             default:

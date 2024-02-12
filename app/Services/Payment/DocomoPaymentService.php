@@ -5,6 +5,8 @@ namespace App\Services\Payment;
 use App\Enums\OpenIdCarrierType;
 use App\Enums\PaymentType;
 use App\Models\BaseModel;
+use App\Models\Next\NextUser;
+use App\Models\Next\Payment\NextDocomoPurchase;
 use App\Models\Next\Payment\NextDocomoSubscription;
 use App\Models\Next\Payment\NextDocomoSuid;
 use App\Models\Old\OldUser;
@@ -61,8 +63,31 @@ final class DocomoPaymentService implements IMigrateService
         }
     }
 
-    public function migratePurchase(BaseModel $user)
+    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, string $jsonParams)
     {
+        $new = new NextDocomoPurchase();
+        $purchases = $oldUser->docomoPurchases()->get();
+
+        foreach ($purchases as $oldPurchase) {
+            $new->open_id = $nextUser->external_id;
+            $new->rsa_status = $oldPurchase->status;
+            $new->price = $oldPurchase->price;
+            $new->cp_token = $oldPurchase->cp_token;
+            $new->cp_order_no = $oldPurchase->cp_order_no;
+            $new->rsa_item_id = $oldPurchase->cp_param;
+            $new->docomo_purchase_status = $oldPurchase->transaction_type;
+            $new->docomo_token = $oldPurchase->docomo_token;
+            $new->docomo_auth_time = $oldPurchase->docomo_auth_time;
+            $new->created_at = $oldPurchase->created_at;
+            $new->updated_at = $oldPurchase->updated_at;
+            $new->params = $jsonParams;
+
+            if ($new->save()) {
+                Log::info("docomo purchase saved successfully.", ['open_id' => $new->open_id]);
+            } else {
+                Log::error("Failed to save the docomo purchase.");
+            }
+        }
     }
 
     /**

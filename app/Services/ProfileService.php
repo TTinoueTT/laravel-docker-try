@@ -50,11 +50,11 @@ final class ProfileService implements IMigrateService
             Log::info($new->full_name);
 
             // TODO: 削除するのが面倒なため、コメントアウト
-            // if ($new->save()) {
-            //     Log::info("saved successfully.", ['profile_id' => $new->id]);
-            // } else {
-            //     Log::error("Failed to save the profile.");
-            // }
+            if ($new->save()) {
+                Log::info("saved successfully.", ['profile_id' => $new->id]);
+            } else {
+                Log::error("Failed to save the profile.");
+            }
 
             log::info("profile id : #{$old->id}");
 
@@ -69,11 +69,11 @@ final class ProfileService implements IMigrateService
             Log::info($new->full_name);
 
             // TODO: 削除するのが面倒なため、コメントアウト
-            // if ($new->save()) {
-            //     Log::info("saved successfully.", ['profile_id' => $new->id]);
-            // } else {
-            //     Log::error("Failed to save the profile.");
-            // }
+            if ($new->save()) {
+                Log::info("saved successfully.", ['profile_id' => $new->id]);
+            } else {
+                Log::error("Failed to save the profile.");
+            }
 
             log::info("target_profile id : #{$oldTarget->id}");
 
