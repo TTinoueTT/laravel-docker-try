@@ -102,6 +102,11 @@ class OldUser extends BaseModel
         return $this->hasOne(OldUserData::class, OldUserData::USER_ID);
     }
 
+    public function bookmarks()
+    {
+        return $this->hasMany(OldBookmark::class, OldBookmark::USER_ID);
+    }
+
     /*
     * ここから決済系のリレーション
     */

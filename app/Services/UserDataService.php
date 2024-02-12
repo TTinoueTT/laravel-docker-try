@@ -33,22 +33,34 @@ final class UserDataService implements IMigrateService
         $new->user_id = $nextUser->id;
         $oldUserData = $oldUser->users_data()->get()->first();
         $new->campaign_values = isset($oldUserData->campaign_values) ? $oldUserData->campaign_values : $new->campaign_values;
-        $new->reservation_items = $this->convertReservationData($oldUserData->reservation);
-        $new->created_at = $oldUserData->created_at;
-        $new->updated_at = $oldUserData->updated_at;
+        $new->reservation_items = isset($oldUserData->reservation) ? $this->convertReservationData($oldUserData->reservation) : $new->reservation_items;
+
+        if (isset($oldUserData->created_at)) {
+            $new->created_at = $oldUserData->created_at;
+        }
+
+        if (isset($oldUserData->updated_at)) {
+            $new->updated_at = $oldUserData->updated_at;
+        }
 
         return $new;
     }
 
 
-    private function convertReservationData(String $oldReservation): string
+    /**
+     * 旧予約鑑定情報を新規テーブルように変換
+     *
+     * @param string|null $oldReservation
+     * @return string
+     */
+    private function convertReservationData(?string $oldReservation): string
     {
-        $reservationData = json_decode($oldReservation, true);
         $newData = [];
 
-        if (empty($reservationData)) {
+        if (is_null($oldReservation) || empty($reservationData)) {
             return json_encode($newData);
         }
+        $reservationData = json_decode($oldReservation, true);
 
         if (isset($reservationData["this_month"]["created_at"]) && !empty($reservationData["this_month"]["created_at"])) {
             $dateParts = explode("-", $reservationData["this_month"]["created_at"]);

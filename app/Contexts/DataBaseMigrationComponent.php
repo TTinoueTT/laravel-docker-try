@@ -6,6 +6,7 @@ use App\Models\Old\OldUser;
 use App\Models\Next\NextUser;
 use App\Models\Old\OldProfile;
 use App\Models\Old\OldUserData;
+use App\Services\BookmarkService;
 use App\Services\HistoryService;
 use App\Services\ProfileService;
 use App\Services\UserAnalysisService;
@@ -21,6 +22,7 @@ class DataBaseMigrationComponent
     private $userService;
     private $profileService;
     private $historyService;
+    private $bookmarkService;
     private $userDataService;
     private $userAnalysisService;
 
@@ -29,12 +31,14 @@ class DataBaseMigrationComponent
         ProfileService $profileService,
         UserService $userService,
         HistoryService $historyService,
+        BookmarkService $bookmarkService,
         UserDataService $userDataService,
         UserAnalysisService $userAnalysisService
     ) {
         $this->userService = $userService;
         $this->profileService = $profileService;
         $this->historyService = $historyService;
+        $this->bookmarkService = $bookmarkService;
         $this->userDataService = $userDataService;
         $this->userAnalysisService = $userAnalysisService;
     }
@@ -63,7 +67,7 @@ class DataBaseMigrationComponent
                     * => 190 Softbank
                     * => 22 Rakuten
                     */
-                    if ($oldUser->id != 22) {
+                    if ($oldUser->id != 25) {
                         continue;
                     }
 
@@ -78,6 +82,7 @@ class DataBaseMigrationComponent
                     //TODO $this->historyService->migrateOldToNewWithNew($oldUser, $nextUser, $migrateProfileIdMap);
 
                     # bookmark の移行
+                    $this->bookmarkService->migrateOldToNewWithNew($oldUser, $nextUser);
 
                     # usersData の移行
                     $this->userDataService->migrateOldToNewWithNew($oldUser, $nextUser);
