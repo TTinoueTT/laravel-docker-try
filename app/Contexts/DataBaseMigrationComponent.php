@@ -8,6 +8,8 @@ use App\Models\Old\OldProfile;
 use App\Models\Old\OldUserData;
 use App\Services\HistoryService;
 use App\Services\ProfileService;
+use App\Services\UserAnalysisService;
+use App\Services\UserDataService;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -19,12 +21,22 @@ class DataBaseMigrationComponent
     private $userService;
     private $profileService;
     private $historyService;
+    private $userDataService;
+    private $userAnalysisService;
 
-    public function __construct(ProfileService $profileService, UserService $userService, HistoryService $historyService)
-    {
+
+    public function __construct(
+        ProfileService $profileService,
+        UserService $userService,
+        HistoryService $historyService,
+        UserDataService $userDataService,
+        UserAnalysisService $userAnalysisService
+    ) {
         $this->userService = $userService;
         $this->profileService = $profileService;
         $this->historyService = $historyService;
+        $this->userDataService = $userDataService;
+        $this->userAnalysisService = $userAnalysisService;
     }
 
     public function migrate_exec(): void
@@ -38,9 +50,9 @@ class DataBaseMigrationComponent
         DB::connection('mysql_new_payment')->beginTransaction();
 
         try {
-            OldUser::chunk($repeatTime, function (Collection $users) use ($repeatTime, $counter) {
+            OldUser::chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
                 // 処理回数を追跡するカウンタ
-                foreach ($users as $user) {
+                foreach ($oldUsers as $oldUser) {
 
                     // TODO: 練習用に修正
                     /*
@@ -51,35 +63,30 @@ class DataBaseMigrationComponent
                     * => 190 Softbank
                     * => 22 Rakuten
                     */
-                    if ($user->id != 3) {
+                    if ($oldUser->id != 22) {
                         continue;
                     }
 
-                    # users レコードの移行
-                    Log::info("users id: {$user->id}");
-                    $nextUser = $this->userService->migrateOldToNew($user);
+                    # users レコードの移行(決済継続データの移行も)
+                    Log::info("users id: {$oldUser->id}");
+                    $nextUser = $this->userService->migrateOldToNew($oldUser);
 
-                    # profile の移行
-                    $migrateProfileIdMap = $this->profileService->migrateOldToNewWithNew($user, $nextUser);
+                    # profile の移行(旧profile情報の重複も考慮)
+                    //TODO $migrateProfileIdMap = $this->profileService->migrateOldToNewWithNew($oldUser, $nextUser);
 
-                    # history の移行
-                    $this->historyService;
+                    # history の移行(決済注文レコードの移行も)
+                    //TODO $this->historyService->migrateOldToNewWithNew($oldUser, $nextUser, $migrateProfileIdMap);
 
+                    # bookmark の移行
 
-                    // new DB の user 読み込み
-                    // $nextUser = NextUser::find(1);
-                    // Log::info("users external_id: {$nextUser->external_id}");
-                    // NextUser::where(NextUser::EXTERNAL_ID, $user->email)->first();
+                    # usersData の移行
+                    $this->userDataService->migrateOldToNewWithNew($oldUser, $nextUser);
 
-                    # targetProfile の取得
-
-                    # histories の取得
-
-                    #
+                    # userAnalysis の移行
+                    $this->userAnalysisService->migrateOldToNewWithNew($oldUser, $nextUser);
 
 
-
-                    log::info("======#{$counter}");
+                    Log::info("======#{$counter}");
 
                     // 一旦chunk の処理を止めたい
                     // カウンタをインクリメント

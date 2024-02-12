@@ -97,6 +97,11 @@ class OldUser extends BaseModel
         return $this->hasMany(OldHistory::class, OldHistory::USER_ID);
     }
 
+    public function users_data()
+    {
+        return $this->hasOne(OldUserData::class, OldUserData::USER_ID);
+    }
+
     /*
     * ここから決済系のリレーション
     */
