@@ -30,7 +30,7 @@ final class DocomoPaymentService implements IMigrateService
 
         $subscriptions = $oldUser->docomoSubscriptions()->get();
         if ($subscriptions->isEmpty()) {
-            Log::info("No docomo subscriptions found => process is continue .... ");
+            Log::info("Not found docomo payment subscription => process is continue .... ");
             return PaymentType::UNKNOWN;
         } else {
             $lastSubscription = $subscriptions->last();
@@ -53,6 +53,7 @@ final class DocomoPaymentService implements IMigrateService
             $new->updated_at = $lastSubscription->updated_at;
             // $new->params = $lastSubscription->params; 必要であれば
 
+            Log::info("Start save to {$new->getTable()}");
             if ($new->save()) {
                 Log::info("docomo subscription saved successfully.", ['open_id' => $new->open_id]);
             } else {
@@ -82,6 +83,7 @@ final class DocomoPaymentService implements IMigrateService
             $new->updated_at = $oldPurchase->updated_at;
             $new->params = $jsonParams;
 
+            Log::info("Start save to {$new->getTable()}");
             if ($new->save()) {
                 Log::info("docomo purchase saved successfully.", ['open_id' => $new->open_id]);
             } else {

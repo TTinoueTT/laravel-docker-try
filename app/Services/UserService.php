@@ -50,8 +50,7 @@ final class UserService implements IMigrateService
         $nextUser->payment_type = $this->findAndSavePaymentType($oldUser);
 
         $externalId = $this->setExternalId($nextUser, $oldUser);
-
-        if ($externalId) {
+        if (empty($externalId)) {
             return null;
         }
 

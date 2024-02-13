@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\BaseModel;
 use App\Models\Old\OldUser;
 use App\Models\Old\Payment\OldAmazonPayBillingAgreement;
+use Carbon\Carbon;
 
 class NextAmazonPayBillingAgreement extends BaseModel
 {
@@ -56,7 +57,7 @@ class NextAmazonPayBillingAgreement extends BaseModel
             self::SELLER_BILLING_AGREEMENT_ID => '',
             self::BILLING_AGREEMENT_STATE => 0,
             self::BILLING_AGREEMENT_REASON_CODE => '',
-            self::CANCELLED_AT => date("Y-m-d H:i:s"),
+            self::CANCELLED_AT => Carbon::create(2000, 1, 1, 0, 0, 0),
             self::PARAMS => '[]',
         ];
     }

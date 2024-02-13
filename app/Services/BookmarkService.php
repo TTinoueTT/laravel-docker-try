@@ -26,6 +26,7 @@ final class BookmarkService implements IMigrateService
             $new->user_id = $nextUser->id;
             $new = $this->oldToNew($old, $new);
 
+            Log::info("Start save to {$new->getTable()}");
             if ($new->save()) {
                 Log::info("saved successfully.", ['bookmark id' => $new->id]);
             } else {

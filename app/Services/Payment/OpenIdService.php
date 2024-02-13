@@ -45,6 +45,8 @@ final class OpenIdService implements IMigrateService
                 return $new;
             }
 
+            Log::info("Start save to {$new->getTable()}");
+
             if ($new->save()) {
                 Log::info("open id saved successfully.", ['open_id' => $new->open_id]);
             } else {

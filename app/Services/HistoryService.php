@@ -64,6 +64,7 @@ final class HistoryService implements IMigrateService
 
             $new = $this->oldToNew($history, new NextHistory(), $nextUser, $migrateProfileIdMap);
 
+            Log::info("Start save to {$new->getTable()}");
             if ($new->save()) {
                 Log::info("saved successfully.", ['history_id' => $new->id]);
             } else {

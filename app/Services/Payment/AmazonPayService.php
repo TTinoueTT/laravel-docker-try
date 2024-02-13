@@ -30,7 +30,7 @@ final class AmazonPayService implements IMigrateService
         // AmazonPay に関するレコードを取得して新規レコードに追加
         $billingAgreements = $oldUser->amazonPayBillingAgreements()->get();
         if ($billingAgreements->isEmpty()) {
-            Log::info("No billing agreements found  => process is continue .... ");
+            Log::info("Not found billing agreements => process is continue .... ");
             return PaymentType::UNKNOWN;
         } else {
             $lastBillingAgreement = $billingAgreements->last();
@@ -41,10 +41,13 @@ final class AmazonPayService implements IMigrateService
             $new->seller_billing_agreement_id = $lastBillingAgreement->seller_billing_agreement_id;
             $new->billing_agreement_state = $lastBillingAgreement->status;
             $new->billing_agreement_reason_code = $lastBillingAgreement->state_reason;
-            $new->cancelled_at = $lastBillingAgreement->cancelled_at;
+            if ($lastBillingAgreement->cancelled_at != '0000-00-00 00:00:00') {
+                $new->cancelled_at = $lastBillingAgreement->cancelled_at;
+            }
             $new->created_at = $lastBillingAgreement->created_at;
             $new->updated_at = $lastBillingAgreement->updated_at;
 
+            Log::info("Start save to {$new->getTable()}");
             if ($new->save()) {
                 Log::info("billing agreement saved successfully.", ['open_id' => $new->open_id]);
             } else {
@@ -72,6 +75,7 @@ final class AmazonPayService implements IMigrateService
             $new->updated_at = $oldPurchase->updated_at;
             $new->params = $jsonParams;
 
+            Log::info("Start save to {$new->getTable()}");
             if ($new->save()) {
                 Log::info("amazon purchase saved successfully.", ['open_id' => $new->open_id]);
             } else {

@@ -45,43 +45,22 @@ class DataBaseMigrationComponent
 
     public function migrate_exec(): void
     {
-
-
-        Log::info("___________________________________________________________________________");
-        Log::info("        /    /                   ,");
-        Log::info("----__-/----/__---------_--_----------__----)__-----__---_/_-----__----)__-");
-        Log::info("  /   /    /   ) ===   / /  )  /    /   )  /   )  /   )  /     /   )  /   )");
-        Log::info("_(___/____(___/_______/_/__/__/____(___/__/______(___(__(_ ___(___/__/_____");
-        Log::info("                                      /");
-        Log::info("                                  (_ /");
-
-        //    ______
-        //   / ____/___  ____ ___  ____  ____  ________  _____
-        //  / /   / __ \\/ __ `__ \\/ __ \\/ __ \\/ ___/ _ \\/ ___/
-        // / /___/ /_/ / / / / / / /_/ / /_/ (__  )  __/ /
-        // \\____/\\____/_/ /_/ /_/ .___/\\____/____/\\___/_/
-
-        // Log::info("          __  __                           _                   _");
-        // Log::info("         / / / /                          (_)                   | |");
-        // Log::info("   _____/ / / /_              __ __  __   __ _  _ __   __ _ | |_   ___   _ __");
-        // Log::info("  / __ ` / / __  \   ______  / /_  `_  \ / /__ _` || '__| / _` || __| / _ \ | '__|");
-        // Log::info(" / /  / / / /  | | /______/ / ' / / / / / // _` || '__| / _` || __| / _ \ | '__|");
-        // Log::info("| /__/ / / /__/ /          / / / / / / / // (_| || |   | (_| || |_ | (_) || |");
-        // Log::info(" \__,_/ /_.____/          /_/ /_/ /_/ /_/ \__, ||_|    \__,_| \__| \___/ |_|");
-        // Log::info("                                               __/ |");
-        // Log::info("                                              |___/");
-        // Log::info("         _      _                         _                      _");
-        // Log::info("       /  /   / /                       (_)                    | |");
-        // Log::info("   __ /  /   / /__   ______  _ __ ___   _   __ _  _ __   __ _ | |_   ___   _ __");
-        // Log::info(" / _ `  /   /     '_ \ |______|| '_ ` _ \ | | / _` || '__| / _` || __| / _ \ | '__|");
-        // Log::info("| (_/  /   / /_) /       | | | | | || || (_| || |   | (_| || |_ | (_) || |");
-        // Log::info(" \__,_/   /_.__/         |_| |_| |_||_| \__, ||_|    \__,_| \__| \___/ |_|");
-        // Log::info("                                      __/ |");
-        // Log::info("                                     |___/");
-        Log::info("*************************************************************");
+        Log::info("********************************************************************************************");
+        Log::info("          __  __                           _                                               ");
+        Log::info("         / / / /                          (_)                            __                ");
+        Log::info("   _____/ / / /_              __ __  __   __ ______   __    _____ __ __/ /___ ___    __    ");
+        Log::info("  / __ ` / / __  \  ______   /  _   `_ ` / // ___  \ / /__ / __ `/ //_  ___ `___ `| / /__  ");
+        Log::info(" / /  / / / /  | | /______/ / / / / / / / // /  /  |/  __// /  /  /  / /   / /  / //  __/  ");
+        Log::info("| /__/ / / /__/ /          / / / / / / / // /__/  // /   / /__/  / \/ /___/ /__/ // /      ");
+        Log::info(" \__,_/ /_.____/          /_/ /_/ /_/ /_/ \____, //_/    \___,,_/ \_____/ \_____//_/       ");
+        Log::info("                                           ___/ /                                          ");
+        Log::info("                                          /____/                                           ");
+        Log::info("********************************************************************************************");
         Log::info("START DATABASE MIGRATE EXECUTION");
 
-        $repeatTime = 2;
+
+
+        $repeatTime = 50;
         $counter = 0;
 
         DB::connection('mysql_old')->beginTransaction();
@@ -89,7 +68,8 @@ class DataBaseMigrationComponent
         DB::connection('mysql_new_payment')->beginTransaction();
 
         try {
-            OldUser::orderBy('id', 'desc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
+            OldUser::orderBy('id', 'asc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
+                // OldUser::orderBy('id', 'desc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
                 // 処理回数を追跡するカウンタ
                 foreach ($oldUsers as $oldUser) {
 
@@ -102,9 +82,9 @@ class DataBaseMigrationComponent
                     * => 190 Softbank
                     * => 22, 21 Rakuten
                     */
-                    // if ($oldUser->id != 190) {
-                    //     continue;
-                    // }
+                    if ($oldUser->id != 65) {
+                        continue;
+                    }
 
                     # users レコードの移行(決済継続データの移行も)
                     Log::info("*************************************************************");
@@ -119,10 +99,10 @@ class DataBaseMigrationComponent
                         continue;
                     }
 
-                    # TODO profile の移行(旧profile情報の重複も考慮)
+                    # profile の移行(旧profile情報の重複も考慮)
                     $migrateProfileIdMap = $this->profileService->migrateOldToNewWithNew($oldUser, $nextUser);
 
-                    # TODO history の移行(決済注文レコードの移行も)
+                    # history の移行(決済注文レコードの移行も)
                     $this->historyService->migrateOldToNewWithNew($oldUser, $nextUser, $migrateProfileIdMap);
 
                     # bookmark の移行

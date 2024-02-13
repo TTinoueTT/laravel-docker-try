@@ -22,7 +22,7 @@ final class RakutenPayService implements IMigrateService
 
         $subscriptions = $oldUser->rakutenSubscriptions()->get();
         if ($subscriptions->isEmpty()) {
-            Log::info("No rakuten subscriptions found  => process is continue .... ");
+            Log::info("Not found rakuten subscriptions => process is continue .... ");
             return PaymentType::UNKNOWN;
         } else {
             $lastSubscription = $subscriptions->last();
@@ -37,6 +37,7 @@ final class RakutenPayService implements IMigrateService
             $new->created_at = $lastSubscription->created_at;
             $new->updated_at = $lastSubscription->updated_at;
             // $new->params = $lastSubscription->params; 必要であれば
+            Log::info("Start save to {$new->table}");
 
             if ($new->save()) {
                 Log::info("rakuten subscription saved successfully.", ['open_id' => $new->open_id]);

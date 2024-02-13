@@ -49,9 +49,10 @@ final class ProfileService implements IMigrateService
             $new = $this->oldToNew($old, $new, 0, 1);
             Log::info($new->full_name);
 
+            Log::info("Start save to {$new->getTable()} from {$old->getTable()}");
             // TODO: 削除するのが面倒なため、コメントアウト
             if ($new->save()) {
-                Log::info("saved successfully.", ['profile_id' => $new->id]);
+                Log::info("Saved successfully.", ['profile_id' => $new->id]);
             } else {
                 Log::error("Failed to save the profile.");
             }
@@ -69,6 +70,7 @@ final class ProfileService implements IMigrateService
             Log::info($new->full_name);
 
             // TODO: 削除するのが面倒なため、コメントアウト
+            Log::info("Start save to {$new->getTable()} from {$oldTarget->getTable()}");
             if ($new->save()) {
                 Log::info("saved successfully.", ['profile_id' => $new->id]);
             } else {

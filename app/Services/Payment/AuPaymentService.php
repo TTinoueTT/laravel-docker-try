@@ -30,7 +30,7 @@ final class AuPaymentService implements IMigrateService
 
         $subscriptions = $oldUser->auSubscriptions()->get();
         if ($subscriptions->isEmpty()) {
-            Log::info("No au subscriptions found => process is continue .... ");
+            Log::info("Not found au subscriptions => process is continue .... ");
             return PaymentType::UNKNOWN;
         } else {
             $lastSubscription = $subscriptions->last();
@@ -47,7 +47,7 @@ final class AuPaymentService implements IMigrateService
             $new->created_at = $lastSubscription->created_at;
             $new->updated_at = $lastSubscription->updated_at;
             // $new->params = $lastSubscription->params; 必要であれば
-
+            Log::info("Start save to {$new->getTable()}");
             if ($new->save()) {
                 Log::info("au subscription saved successfully.", ['open_id' => $new->open_id]);
             } else {
@@ -75,6 +75,7 @@ final class AuPaymentService implements IMigrateService
             $new->updated_at = $oldPurchase->updated_at;
             $new->params = $jsonParams;
 
+            Log::info("Start save to {$new->getTable()}");
             if ($new->save()) {
                 Log::info("au purchase saved successfully.", ['open_id' => $new->open_id]);
             } else {
