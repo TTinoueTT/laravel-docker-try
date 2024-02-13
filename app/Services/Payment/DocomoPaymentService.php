@@ -91,6 +91,19 @@ final class DocomoPaymentService implements IMigrateService
     }
 
     /**
+     * NextDocomoSubscription モデルから、open_id プロパティが
+     * 引数 $openId に一致するものがあるかどうかをチェック
+     *
+     * @param string $openId
+     * @return boolean
+     */
+    public function checkDuplicateOpenId(string $openId): bool
+    {
+        $exists = NextDocomoSubscription::where('open_id', $openId)->exists();
+        return $exists;
+    }
+
+    /**
      * user_id で一意性あり
      *
      * @param BaseModel $oldUser

@@ -79,4 +79,17 @@ final class AmazonPayService implements IMigrateService
             }
         }
     }
+
+    /**
+     * NextAmazonPayBillingAgreement モデルから、open_id プロパティが
+     * 引数 $openId に一致するものがあるかどうかをチェック
+     *
+     * @param string $openId
+     * @return boolean
+     */
+    public function checkDuplicateOpenId(string $openId): bool
+    {
+        $exists = NextAmazonPayBillingAgreement::where('open_id', $openId)->exists();
+        return $exists;
+    }
 }

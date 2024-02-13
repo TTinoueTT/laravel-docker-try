@@ -86,4 +86,17 @@ final class SoftBankPaymentService implements IMigrateService
             }
         }
     }
+
+    /**
+     * NextSoftBankSubscription モデルから、open_id プロパティが
+     * 引数 $openId に一致するものがあるかどうかをチェック
+     *
+     * @param string $openId
+     * @return boolean
+     */
+    public function checkDuplicateOpenId(string $openId): bool
+    {
+        $exists = NextSoftBankSubscription::where('open_id', $openId)->exists();
+        return $exists;
+    }
 }

@@ -38,6 +38,13 @@ final class OpenIdService implements IMigrateService
             $new->updated_at = $openIdProfile->updated_at;
             // $new->params = $lastSubscription->params; 必要であれば
 
+            // 同じ open_id があれば、保存しない
+            $isExists = $this->checkDuplicateOpenId($new->open_id);
+
+            if ($isExists) {
+                return $new;
+            }
+
             if ($new->save()) {
                 Log::info("open id saved successfully.", ['open_id' => $new->open_id]);
             } else {
@@ -46,5 +53,18 @@ final class OpenIdService implements IMigrateService
 
             return $new;
         }
+    }
+
+    /**
+     * NextSoftBankSubscription モデルから、open_id プロパティが
+     * 引数 $openId に一致するものがあるかどうかをチェック
+     *
+     * @param string $openId
+     * @return boolean
+     */
+    public function checkDuplicateOpenId(string $openId): bool
+    {
+        $exists = NextOpenId::where('open_id', $openId)->exists();
+        return $exists;
     }
 }

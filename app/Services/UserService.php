@@ -39,7 +39,7 @@ final class UserService implements IMigrateService
         $this->rakutenPayService = $rakutenPayService;
     }
 
-    public function migrateOldToNew(BaseModel $oldUser): NextUser
+    public function migrateOldToNew(BaseModel $oldUser): ?NextUser
     {
         if (!$oldUser instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
@@ -49,7 +49,11 @@ final class UserService implements IMigrateService
         $nextUser->interest_type = $this->exchangeIntent($oldUser->intent);
         $nextUser->payment_type = $this->findAndSavePaymentType($oldUser);
 
-        $this->setExternalId($nextUser, $oldUser);
+        $externalId = $this->setExternalId($nextUser, $oldUser);
+
+        if ($externalId) {
+            return null;
+        }
 
         $nextUser->migration_code = isset($oldUser->migration_code) ? $oldUser->migration_code : RandomComponent::Generate(12);
         $nextUser->mail_address = $oldUser->mail_address;
@@ -59,11 +63,21 @@ final class UserService implements IMigrateService
         $nextUser->created_at = $oldUser->created_at;
         $nextUser->updated_at = $oldUser->updated_at;
 
+        // $nextUser->external_id を payment_type の決済タイプに応じて検索して、open_id を検索 同じものがあれば、return null;
+        // $isExists = $this->existsDuplicatePaymentSubscription($nextUser);
+        $isExists = $this->existsDuplicateUserByExternalId($nextUser->external_id);
+
+        if ($isExists) {
+            return null;
+        }
+
         if ($nextUser->save()) {
             Log::info("User saved successfully.", ['user_id' => $nextUser->id]);
         } else {
             Log::error("Failed to save the user.");
         }
+
+        Log::info("User migrate process is finish !!!");
 
         return $nextUser;
     }
@@ -72,9 +86,9 @@ final class UserService implements IMigrateService
      * 各決済キャリアの継続課金データをもとにセット
      * @param NextUser $nextUser
      * @param OldUser $oldUser
-     * @return void
+     * @return string
      */
-    private function setExternalId(NextUser $nextUser, OldUser $oldUser)
+    private function setExternalId(NextUser $nextUser, OldUser $oldUser): string
     {
         if (in_array($nextUser->payment_type, OpenIdCarrierType::getValues())) {
             $openIdProfile = $oldUser->openIdProfiles()->get()->first();
@@ -88,6 +102,8 @@ final class UserService implements IMigrateService
         } else {
             $nextUser->external_id = $oldUser->email;
         }
+
+        return $nextUser->external_id;
     }
 
     /**
@@ -159,5 +175,44 @@ final class UserService implements IMigrateService
         }
 
         return $paymentType;
+    }
+
+    private function existsDuplicatePaymentSubscription(NextUser $nextUser): bool
+    {
+        $isExists = false;
+        switch ($nextUser->payment_type) {
+            case PaymentType::SOFTBANK:
+                $isExists = $this->softPaymentService->checkDuplicateOpenId($nextUser->external_id);
+                break;
+            case PaymentType::AU:
+                $isExists = $this->auPaymentService->checkDuplicateOpenId($nextUser->external_id);
+                break;
+            case PaymentType::DOCOMO:
+                $isExists = $this->docomoPaymentService->checkDuplicateOpenId($nextUser->external_id);
+                break;
+            case PaymentType::RAKUTEN:
+                $isExists = $this->rakutenPayService->checkDuplicateOpenId($nextUser->external_id);
+                break;
+            case PaymentType::AMAZON:
+                $isExists = $this->amazonPayService->checkDuplicateOpenId($nextUser->external_id);
+                break;
+
+            default:
+                # code...
+                break;
+        }
+
+        return $isExists;
+    }
+
+    /**
+     * external_id の重複をチェック
+     * @param string $externalId
+     * @return bool
+     */
+    private function existsDuplicateUserByExternalId(string $externalId): bool
+    {
+        $exists = NextUser::where('external_id', $externalId)->exists();
+        return $exists;
     }
 }
