@@ -73,6 +73,8 @@ final class HistoryService implements IMigrateService
             // 決済注文レコードの移行をこのあたりで行う
             $this->savePaymentOrder($new, $nextUser, $oldUser);
         }
+
+        Log::info("history migrate process is finish !!!");
     }
 
     /**

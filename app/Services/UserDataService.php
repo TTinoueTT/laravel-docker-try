@@ -25,6 +25,7 @@ final class UserDataService implements IMigrateService
         } else {
             Log::error("Failed to save the users_data.");
         }
+        Log::info("user data migrate process is finish !!!");
     }
 
     private function oldToNew(OldUser $oldUser, NextUser $nextUser): NextUserData

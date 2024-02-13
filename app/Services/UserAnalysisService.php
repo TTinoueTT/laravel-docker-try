@@ -25,6 +25,7 @@ final class UserAnalysisService implements IMigrateService
         } else {
             Log::error("Failed to save the users_analyses.");
         }
+        Log::info("user analysis migrate process is finish !!!");
     }
 
     private function oldToNew(OldUser $oldUser, NextUser $nextUser): NextUserAnalysis

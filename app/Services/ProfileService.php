@@ -80,6 +80,8 @@ final class ProfileService implements IMigrateService
             array_push($targetMap, new MigrateIdMapDto($new->id, $old->id));
         }
 
+        Log::info("profile migrate process is finish !!!");
+
         return new MigrateProfileIdMapDto($singleMap, $targetMap);
     }
 
