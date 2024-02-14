@@ -20,6 +20,7 @@ final class UserDataService implements IMigrateService
     {
         $nextUserData = $this->oldToNew($oldUser, $nextUser);
 
+        Log::info("Start save to {$nextUserData->getTable()}");
         if ($nextUserData->save()) {
             Log::info("saved successfully.", ['users_data id' => $nextUserData->id]);
         } else {

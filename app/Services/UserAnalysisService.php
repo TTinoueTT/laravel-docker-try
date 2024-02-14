@@ -20,6 +20,7 @@ final class UserAnalysisService implements IMigrateService
     {
         $nextUserAnalysis = $this->oldToNew($oldUser, $nextUser);
 
+        Log::info("Start save to {$nextUserAnalysis->getTable()}");
         if ($nextUserAnalysis->save()) {
             Log::info("saved successfully.", ['users_analyses id' => $nextUserAnalysis->id]);
         } else {

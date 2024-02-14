@@ -33,7 +33,8 @@ final class BookmarkService implements IMigrateService
                 Log::error("Failed to save the bookmark.");
             }
         }
-        Log::info("bookmark migrate process is finish !!!");
+
+        Log::info($oldBookmarks->isEmpty() ? "Not exist bookmark data \≠(   ._.)\≠" : "bookmark migrate process is finish !!!");
     }
 
     private function oldToNew(OldBookmark $old, NextBookmark $new): NextBookmark

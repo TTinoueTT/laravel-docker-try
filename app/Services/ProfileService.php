@@ -47,40 +47,38 @@ final class ProfileService implements IMigrateService
             $new = new NextProfile();
             $new->user_id = $NextUser->id;
             $new = $this->oldToNew($old, $new, 0, 1);
-            Log::info($new->full_name);
 
+            Log::info("full_name: {$new->full_name}, birthday: {$new->birthday}");
             Log::info("Start save to {$new->getTable()} from {$old->getTable()}");
-            // TODO: 削除するのが面倒なため、コメントアウト
             if ($new->save()) {
                 Log::info("Saved successfully.", ['profile_id' => $new->id]);
             } else {
                 Log::error("Failed to save the profile.");
             }
-
             log::info("profile id : #{$old->id}");
 
             array_push($singleMap, new MigrateIdMapDto($new->id, $old->id));
         }
+        Log::info($profiles->isEmpty() ? "Not exist profile \≠(   ._.)\≠" : "Finish profile migrate process !!!");
 
         $targetMap = [];
         foreach ($targetProfiles as $oldTarget) {
             $new = new NextProfile();
             $new->user_id = $NextUser->id;
             $new = $this->oldToNew($oldTarget, $new, 0, 2);
-            Log::info($new->full_name);
 
-            // TODO: 削除するのが面倒なため、コメントアウト
+            Log::info("full_name: {$new->full_name}, birthday: {$new->birthday}");
             Log::info("Start save to {$new->getTable()} from {$oldTarget->getTable()}");
             if ($new->save()) {
                 Log::info("saved successfully.", ['profile_id' => $new->id]);
             } else {
                 Log::error("Failed to save the profile.");
             }
-
             log::info("target_profile id : #{$oldTarget->id}");
 
             array_push($targetMap, new MigrateIdMapDto($new->id, $old->id));
         }
+        Log::info($targetProfiles->isEmpty() ? "Not exist target_profile \≠(   ._.)\≠" : "Finish target_profile migrate process !!!");
 
         Log::info("profile migrate process is finish !!!");
 

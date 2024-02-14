@@ -75,7 +75,7 @@ final class HistoryService implements IMigrateService
             $this->savePaymentOrder($new, $nextUser, $oldUser);
         }
 
-        Log::info("history migrate process is finish !!!");
+        Log::info($histories->isEmpty() ? "Not exist history \≠(   ._.)\≠" : "history migrate process is finish !!!");
     }
 
     /**
