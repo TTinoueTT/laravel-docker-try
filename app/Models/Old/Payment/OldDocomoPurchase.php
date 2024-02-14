@@ -35,20 +35,7 @@ class OldDocomoPurchase extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::USER_ID => null,
-        self::history_id => null,
-        self::status => 0,
-        self::price => 0,
-        self::cp_token => '',
-        self::cp_order_no => '',
-        self::cp_processing_time => '',
-        self::cp_param => '',
-        self::transaction_type => '',
-        self::docomo_token => '',
-        self::docomo_order_no => '',
-        self::docomo_auth_time => date("Y-m-d H:i:s"),
-    ];
+    protected $attributes = [];
 
     const USER_ID = "user_id";
     const history_id = "history_id";
@@ -62,4 +49,23 @@ class OldDocomoPurchase extends BaseModel
     const docomo_token = "docomo_token";
     const docomo_order_no = "docomo_order_no";
     const docomo_auth_time = "docomo_auth_time";
+
+    public function __construct($attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->attributes = [
+            self::USER_ID => null,
+            self::history_id => null,
+            self::status => 0,
+            self::price => 0,
+            self::cp_token => '',
+            self::cp_order_no => '',
+            self::cp_processing_time => '',
+            self::cp_param => '',
+            self::transaction_type => '',
+            self::docomo_token => '',
+            self::docomo_order_no => '',
+            self::docomo_auth_time => date("Y-m-d H:i:s"),
+        ];
+    }
 }

@@ -35,16 +35,7 @@ class OldAmazonPayOrderReference extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::USER_ID => null,
-        self::BILLING_AGREEMENT_ID => null,
-        self::HISTORY_ID => null,
-        self::AMAZON_ORDER_REFERENCE_ID => '',
-        self::ORDER_AMOUNT => 0,
-        self::STATUS => 0,
-        self::STATE_UPDATE_TIME => date("Y-m-d H:i:s"),
-        self::STATE_REASON => '',
-    ];
+    protected $attributes = [];
 
     const USER_ID = "user_id";
     const BILLING_AGREEMENT_ID = "billing_agreement_id";
@@ -54,4 +45,19 @@ class OldAmazonPayOrderReference extends BaseModel
     const STATUS = "status";
     const STATE_UPDATE_TIME = "state_update_time";
     const STATE_REASON = "state_reason";
+
+    public function __construct($attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->attributes = [
+            self::USER_ID => null,
+            self::BILLING_AGREEMENT_ID => null,
+            self::HISTORY_ID => null,
+            self::AMAZON_ORDER_REFERENCE_ID => '',
+            self::ORDER_AMOUNT => 0,
+            self::STATUS => 0,
+            self::STATE_UPDATE_TIME => date("Y-m-d H:i:s"),
+            self::STATE_REASON => '',
+        ];
+    }
 }

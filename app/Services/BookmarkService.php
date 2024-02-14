@@ -26,6 +26,16 @@ final class BookmarkService implements IMigrateService
             $new->user_id = $nextUser->id;
             $new = $this->oldToNew($old, $new);
 
+            $exists = NextBookmark::where('user_id', $new->user_id)
+                ->where('itemcd', $new->itemcd)
+                ->where('content_key', $new->content_key)
+                ->exists();
+
+            if ($exists) {
+                Log::info("A record with the same user_id, itemcd, content_key combination already exists, skipping save.");
+                continue;
+            }
+
             Log::info("Start save to {$new->getTable()}");
             if ($new->save()) {
                 Log::info("saved successfully.", ['bookmark id' => $new->id]);
@@ -34,7 +44,7 @@ final class BookmarkService implements IMigrateService
             }
         }
 
-        Log::info($oldBookmarks->isEmpty() ? "Not exist bookmark data \≠(   ._.)\≠" : "bookmark migrate process is finish !!!");
+        Log::info($oldBookmarks->isEmpty() ? "Not exist bookmark data \/(´；ω；`;)\/" : "bookmark migrate process is finish !!!");
     }
 
     private function oldToNew(OldBookmark $old, NextBookmark $new): NextBookmark

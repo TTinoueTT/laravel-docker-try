@@ -35,18 +35,7 @@ class OldAuPurchase extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::USER_ID => null,
-        self::HISTORY_ID => null,
-        self::OUR_STATUS => 0,
-        self::MANAGE_NO => '',
-        self::AMOUNT => 0,
-        self::TRANSACTION_ID => '',
-        self::PAYMTD => '',
-        self::PAY_INFO_NO => '',
-        self::PROCESS_DAY => date("Y-m-d H:i:s"),
-        self::RESULT_CODE => '',
-    ];
+    protected $attributes = [];
 
     const USER_ID = "user_id";
     const HISTORY_ID = "history_id";
@@ -58,4 +47,21 @@ class OldAuPurchase extends BaseModel
     const PAY_INFO_NO = "pay_info_no";
     const PROCESS_DAY = "process_day";
     const RESULT_CODE = "result_code";
+
+    public function __construct($attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->attributes = [
+            self::USER_ID => null,
+            self::HISTORY_ID => null,
+            self::OUR_STATUS => 0,
+            self::MANAGE_NO => '',
+            self::AMOUNT => 0,
+            self::TRANSACTION_ID => '',
+            self::PAYMTD => '',
+            self::PAY_INFO_NO => '',
+            self::PROCESS_DAY => date("Y-m-d H:i:s"),
+            self::RESULT_CODE => '',
+        ];
+    }
 }

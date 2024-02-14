@@ -34,7 +34,7 @@ final class UserDataService implements IMigrateService
         $new = new NextUserData();
         $new->user_id = $nextUser->id;
         $oldUserData = $oldUser->users_data()->get()->first();
-        $new->campaign_values = isset($oldUserData->campaign_values) ? $oldUserData->campaign_values : $new->campaign_values;
+        $new->campaign_values = isset($oldUserData->campaign_values) ? $this->convertCampaignValues($oldUserData->campaign_values) : $new->campaign_values;
         $new->reservation_items = isset($oldUserData->reservation) ? $this->convertReservationData($oldUserData->reservation) : $new->reservation_items;
 
         if (isset($oldUserData->created_at)) {
@@ -48,6 +48,18 @@ final class UserDataService implements IMigrateService
         return $new;
     }
 
+    private function convertCampaignValues(string $campaignValues)
+    {
+        $newData = [];
+
+        if (is_null($campaignValues) || empty($campaignValues)) {
+            return json_encode($newData);
+        }
+        $campaignObj = json_decode($campaignValues, true);
+
+        return json_encode($campaignObj);
+    }
+
 
     /**
      * 旧予約鑑定情報を新規テーブルように変換
@@ -59,7 +71,7 @@ final class UserDataService implements IMigrateService
     {
         $newData = [];
 
-        if (is_null($oldReservation) || empty($reservationData)) {
+        if (is_null($oldReservation) || empty($oldReservation)) {
             return json_encode($newData);
         }
         $reservationData = json_decode($oldReservation, true);

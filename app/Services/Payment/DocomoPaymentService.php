@@ -78,7 +78,11 @@ final class DocomoPaymentService implements IMigrateService
             $new->rsa_item_id = $oldPurchase->cp_param;
             $new->docomo_purchase_status = $oldPurchase->transaction_type;
             $new->docomo_token = $oldPurchase->docomo_token;
-            $new->docomo_auth_time = $oldPurchase->docomo_auth_time;
+
+            if ($oldPurchase->docomo_auth_time != '0000-00-00 00:00:00') {
+                $new->docomo_auth_time = $oldPurchase->docomo_auth_time;
+            }
+
             $new->created_at = $oldPurchase->created_at;
             $new->updated_at = $oldPurchase->updated_at;
             $new->params = $jsonParams;

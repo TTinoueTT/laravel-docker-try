@@ -4,6 +4,7 @@ namespace App\Models\Next\Payment;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\BaseModel;
+use Carbon\Carbon;
 
 class NextDocomoPurchase extends BaseModel
 {
@@ -58,7 +59,7 @@ class NextDocomoPurchase extends BaseModel
             self::RSA_ITEM_ID => '',
             self::DOCOMO_PURCHASE_STATUS => '',
             self::DOCOMO_TOKEN => '',
-            self::DOCOMO_AUTH_TIME =>  date("Y-m-d H:i:s"),
+            self::DOCOMO_AUTH_TIME => Carbon::create(2000, 1, 1, 0, 0, 0),
             self::PARAMS => '[]',
         ];
     }

@@ -35,14 +35,7 @@ class OldRakutenPurchase extends BaseModel
      *
      * @var array
      */
-    protected $attributes = [
-        self::USER_ID => null,
-        self::history_id => null,
-        self::order_cart_id => null,
-        self::order_control_id => null,
-        self::price => 0,
-        self::itemcd => '',
-    ];
+    protected $attributes = [];
 
     const USER_ID = "user_id";
     const history_id = "history_id";
@@ -50,4 +43,17 @@ class OldRakutenPurchase extends BaseModel
     const order_control_id = "order_control_id";
     const price = "price";
     const itemcd = "itemcd";
+
+    public function __construct($attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->attributes = [
+            self::USER_ID => null,
+            self::history_id => null,
+            self::order_cart_id => null,
+            self::order_control_id => null,
+            self::price => 0,
+            self::itemcd => '',
+        ];
+    }
 }

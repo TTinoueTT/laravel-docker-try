@@ -67,8 +67,8 @@ class DataBaseMigrationComponent
         DB::connection('mysql_new_payment')->beginTransaction();
 
         try {
-            OldUser::orderBy('id', 'asc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
-                // OldUser::orderBy('id', 'desc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
+            // OldUser::orderBy('id', 'asc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
+            OldUser::orderBy('id', 'desc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
                 // 処理回数を追跡するカウンタ
                 foreach ($oldUsers as $oldUser) {
 
@@ -81,7 +81,7 @@ class DataBaseMigrationComponent
                     * => 190 Softbank
                     * => 22, 21 Rakuten
                     */
-                    // if ($oldUser->id != 65) {
+                    // if ($oldUser->id != 279) {
                     //     continue;
                     // }
 

@@ -54,8 +54,9 @@ final class UserService implements IMigrateService
             return null;
         }
 
-        $nextUser->migration_code = isset($oldUser->migration_code) ? $oldUser->migration_code : RandomComponent::Generate(12);
+        $nextUser->migration_code = $this->generateUniqueMigrationCode();
         $nextUser->mail_address = $oldUser->mail_address;
+
         $nextUser->notification = $oldUser->notification;
         $nextUser->notification_optout_at = isset($oldUser->notification_optout_at) ? $oldUser->notification_optout_at : Carbon::create(1000, 1, 1, 0, 0, 0);
         $nextUser->notification_optin_at = isset($oldUser->notification_optin_at) ? $oldUser->notification_optin_at : Carbon::create(1000, 1, 1, 0, 0, 0);
@@ -103,6 +104,23 @@ final class UserService implements IMigrateService
         }
 
         return $nextUser->external_id;
+    }
+
+    /**
+     * 新規 users テーブル内を検証して、一意な文字列(12文字)を生成
+     * @return string
+     */
+    private function generateUniqueMigrationCode(): string
+    {
+        do {
+            // 一意の migration_code を生成
+            $uniqueMigrationCode = RandomComponent::Generate(12);
+            // 生成した migration_code が NextUser モデルのテーブルに存在するか確認
+            $exists = NextUser::where('migration_code', $uniqueMigrationCode)->exists();
+        } while ($exists); // 生成した migration_code が既に存在する場合は再度生成
+
+        // 生成した一意の migration_code を nextUser オブジェクトに設定
+        return $uniqueMigrationCode;
     }
 
     /**
