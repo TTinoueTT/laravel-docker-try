@@ -53,7 +53,7 @@ class NextProfile extends BaseModel
     {
         $this->attributes = [
             self::USER_ID => null,
-            self::STATE => 1,
+            self::STATE => 0,
             self::TYPE => 1,
             self::FULL_NAME => '',
             self::LAST_NAME => '',
