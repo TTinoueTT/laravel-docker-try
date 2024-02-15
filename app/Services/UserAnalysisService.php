@@ -18,6 +18,9 @@ final class UserAnalysisService implements IMigrateService
 
     public function migrateOldToNewWithNew(BaseModel $oldUser, NextUser $nextUser)
     {
+        Log::info("============================================================");
+        Log::info("****************** user analysis process ******************");
+        Log::info("============================================================");
         $nextUserAnalysis = $this->oldToNew($oldUser, $nextUser);
 
         Log::info("Start save to {$nextUserAnalysis->getTable()}");

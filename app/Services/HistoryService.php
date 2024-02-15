@@ -51,6 +51,9 @@ final class HistoryService implements IMigrateService
      */
     public function migrateOldToNewWithNew(BaseModel $oldUser, NextUser $nextUser, MigrateProfileIdMapDto $migrateProfileIdMap): void
     {
+        Log::info("============================================================");
+        Log::info("********************* history process *********************");
+        Log::info("============================================================");
         if (!$oldUser instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
         }

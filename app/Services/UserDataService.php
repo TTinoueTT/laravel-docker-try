@@ -18,6 +18,9 @@ final class UserDataService implements IMigrateService
 
     public function migrateOldToNewWithNew(BaseModel $oldUser, NextUser $nextUser)
     {
+        Log::info("============================================================");
+        Log::info("******************** user data process ********************");
+        Log::info("============================================================");
         $nextUserData = $this->oldToNew($oldUser, $nextUser);
 
         Log::info("Start save to {$nextUserData->getTable()}");

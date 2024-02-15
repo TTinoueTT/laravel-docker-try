@@ -20,6 +20,9 @@ final class BookmarkService implements IMigrateService
 
     public function migrateOldToNewWithNew(BaseModel $oldUser, NextUser $nextUser)
     {
+        Log::info("============================================================");
+        Log::info("********************* bookmark process *********************");
+        Log::info("============================================================");
         $oldBookmarks = $oldUser->bookmarks()->get();
         foreach ($oldBookmarks as $old) {
             $new = new NextBookmark();
