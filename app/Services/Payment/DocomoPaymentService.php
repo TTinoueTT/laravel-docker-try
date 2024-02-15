@@ -10,6 +10,8 @@ use App\Models\Next\Payment\NextDocomoPurchase;
 use App\Models\Next\Payment\NextDocomoSubscription;
 use App\Models\Next\Payment\NextDocomoSuid;
 use App\Models\Old\OldUser;
+use App\Models\Old\OldHistory;
+use App\Models\Old\Payment\OldDocomoPurchase;
 use App\Services\IMigrateService;
 
 use Illuminate\Support\Facades\Log;
@@ -64,12 +66,16 @@ final class DocomoPaymentService implements IMigrateService
         }
     }
 
-    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, string $jsonParams)
+    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, OldHistory $oldHistory, string $jsonParams)
     {
-        $new = new NextDocomoPurchase();
-        $purchases = $oldUser->docomoPurchases()->get();
+        $oldPurchase = OldDocomoPurchase::where('user_id', $oldUser->id)
+            ->where('history_id', $oldHistory->id)
+            ->first();
 
-        foreach ($purchases as $oldPurchase) {
+        if (is_null($oldPurchase)) {
+            Log::info("No found order => process is continue .... ");
+        } else {
+            $new = new NextDocomoPurchase();
             $new->open_id = $nextUser->external_id;
             $new->rsa_status = $oldPurchase->status;
             $new->price = $oldPurchase->price;

@@ -9,6 +9,8 @@ use App\Models\Next\NextUser;
 use App\Models\Next\Payment\NextAuPurchase;
 use App\Models\Next\Payment\NextAuSubscription;
 use App\Models\Old\OldUser;
+use App\Models\Old\OldHistory;
+use App\Models\Old\Payment\OldAuPurchase;
 use App\Services\IMigrateService;
 
 use Illuminate\Support\Facades\Log;
@@ -58,12 +60,16 @@ final class AuPaymentService implements IMigrateService
         }
     }
 
-    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, string $jsonParams)
+    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, OldHistory $oldHistory, string $jsonParams)
     {
-        $new = new NextAuPurchase();
-        $purchases = $oldUser->auPurchases()->get();
+        $oldPurchase = OldAuPurchase::where('user_id', $oldUser->id)
+            ->where('history_id', $oldHistory->id)
+            ->first();
 
-        foreach ($purchases as $oldPurchase) {
+        if (is_null($oldPurchase)) {
+            Log::info("No found order => process is continue .... ");
+        } else {
+            $new = new NextAuPurchase();
             $new->open_id = $nextUser->external_id;
             $new->rsa_status = $oldPurchase->our_status + 1;
             $new->rsa_item_id = $oldPurchase->manage_no;

@@ -62,10 +62,10 @@ final class HistoryService implements IMigrateService
                 continue;
             }
 
-            $new = $this->oldToNew($oldHistory, new NextHistory(), $nextUser, $migrateProfileIdMap);
+            $newHistory = $this->oldToNew($oldHistory, new NextHistory(), $nextUser, $migrateProfileIdMap);
 
             Log::info("*******************************************************************************************");
-            Log::info("Save to {$new->getTable()}, from old ", [
+            Log::info("Save to {$newHistory->getTable()}, from old ", [
                 OldHistory::ID                => $oldHistory->id,
                 OldHistory::ITEMCD            => $oldHistory->itemcd,
                 OldHistory::PROFILE_ID        => $oldHistory->profile_id,
@@ -73,10 +73,10 @@ final class HistoryService implements IMigrateService
             ]);
 
             // 重複するhistoryの存在チェック
-            $exists = NextHistory::where('user_id', $new->user_id)
-                ->where('itemcd', $new->itemcd)
-                ->where('profile_id', $new->profile_id)
-                ->where('target_profile_id', $new->target_profile_id)
+            $exists = NextHistory::where('user_id', $newHistory->user_id)
+                ->where('itemcd', $newHistory->itemcd)
+                ->where('profile_id', $newHistory->profile_id)
+                ->where('target_profile_id', $newHistory->target_profile_id)
                 ->exists();
 
             if ($exists) {
@@ -84,19 +84,21 @@ final class HistoryService implements IMigrateService
                 continue;
             }
 
-            if ($new->save()) {
+            if ($newHistory->save()) {
                 Log::info("Saved successfully,new data ", [
-                    NextHistory::ID                => $new->id,
-                    NextHistory::ITEMCD            => $new->itemcd,
-                    NextHistory::PROFILE_ID        => $new->profile_id,
-                    NextHistory::TARGET_PROFILE_ID => $new->target_profile_id,
+                    NextHistory::ID                => $newHistory->id,
+                    NextHistory::ITEMCD            => $newHistory->itemcd,
+                    NextHistory::PROFILE_ID        => $newHistory->profile_id,
+                    NextHistory::TARGET_PROFILE_ID => $newHistory->target_profile_id,
                 ]);
             } else {
                 Log::error("Failed to save the history.");
             }
 
             // 決済注文レコードの移行をこのあたりで行う
-            $this->savePaymentOrder($new, $nextUser, $oldUser);
+            if ($oldHistory->price > 0) {
+                $this->savePaymentOrder($newHistory, $oldHistory, $nextUser, $oldUser);
+            }
         }
 
         Log::info($histories->isEmpty() ? "Not exist history \/(´；ω；`;)\/" : "history migrate process is finish !!!");
@@ -134,29 +136,23 @@ final class HistoryService implements IMigrateService
         return $new;
     }
 
-    private function savePaymentOrder(NextHistory $nextHistory, NextUser $nextUser, OldUser $oldUser)
+    private function savePaymentOrder(NextHistory $nextHistory, OldHistory $oldHistory, NextUser $nextUser, OldUser $oldUser)
     {
-        // dump($nextHistory);
-        // dd($nextUser);
-        // if ($nextHistory->paymentType != 0) {
-        //     # code...
-        //     dd($nextHistory);
-        // }
         switch ($nextHistory->payment_type) {
             case PaymentType::SOFTBANK:
-                $this->softbankPaymentService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
+                $this->softbankPaymentService->migrateOrder($nextUser, $oldUser, $oldHistory, $this->createParams($nextHistory, $nextUser));
                 break;
             case PaymentType::AU:
-                $this->auPaymentService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
+                $this->auPaymentService->migrateOrder($nextUser, $oldUser, $oldHistory, $this->createParams($nextHistory, $nextUser));
                 break;
             case PaymentType::DOCOMO:
-                $this->docomoPaymentService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
+                $this->docomoPaymentService->migrateOrder($nextUser, $oldUser, $oldHistory, $this->createParams($nextHistory, $nextUser));
                 break;
             case PaymentType::RAKUTEN:
-                $this->rakutenPayService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
+                $this->rakutenPayService->migrateOrder($nextUser, $oldUser, $oldHistory, $this->createParams($nextHistory, $nextUser));
                 break;
             case PaymentType::AMAZON:
-                $this->amazonPayService->migrateOrder($nextUser, $oldUser, $this->createParams($nextHistory, $nextUser));
+                $this->amazonPayService->migrateOrder($nextUser, $oldUser, $oldHistory, $this->createParams($nextHistory, $nextUser));
                 break;
 
             default:

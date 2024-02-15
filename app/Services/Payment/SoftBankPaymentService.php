@@ -9,6 +9,7 @@ use App\Models\Next\NextUser;
 use App\Models\Next\Payment\NextSoftBankPurchase;
 use App\Models\Next\Payment\NextSoftBankSubscription;
 use App\Models\Old\OldUser;
+use App\Models\Old\OldHistory;
 use App\Models\Old\Payment\OldSoftbankPurchase;
 use App\Services\IMigrateService;
 
@@ -62,12 +63,19 @@ final class SoftBankPaymentService implements IMigrateService
         }
     }
 
-    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, string $jsonParams)
+    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, OldHistory $oldHistory, string $jsonParams)
     {
         $new = new NextSoftBankPurchase();
         $purchases = $oldUser->softbankPurchases()->get();
+        // 重複するhistoryの存在チェック
+        $oldPurchase = OldSoftbankPurchase::where('user_id', $oldUser->user_id)
+            ->where('history_id', $$oldHistory->id)
+            ->first();
 
-        foreach ($purchases as $oldPurchase) {
+        if (is_null($oldPurchase)) {
+            Log::info("No found order => process is continue .... ");
+        } else {
+            $new = new NextSoftBankPurchase();
             $new->open_id = $nextUser->external_id;
             $new->rsa_status = $oldPurchase->our_status + 1;
             $new->rsa_item_id = $oldPurchase->manage_no;
@@ -79,6 +87,8 @@ final class SoftBankPaymentService implements IMigrateService
             $new->created_at = $oldPurchase->created_at;
             $new->updated_at = $oldPurchase->updated_at;
             $new->params = $jsonParams;
+
+            Log::info("Start save to {$new->getTable()}");
 
             if ($new->save()) {
                 Log::info("softbank purchase saved successfully.", ['open_id' => $new->open_id]);

@@ -8,6 +8,8 @@ use App\Models\Next\NextUser;
 use App\Models\Next\Payment\NextRakutenPurchase;
 use App\Models\Next\Payment\NextRakutenSubscription;
 use App\Models\Old\OldUser;
+use App\Models\Old\OldHistory;
+use App\Models\Old\Payment\OldRakutenPurchase;
 use App\Services\IMigrateService;
 
 use Illuminate\Support\Facades\Log;
@@ -49,12 +51,16 @@ final class RakutenPayService implements IMigrateService
         }
     }
 
-    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, string $jsonParams)
+    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, OldHistory $oldHistory, string $jsonParams)
     {
-        $new = new NextRakutenPurchase();
-        $purchases = $oldUser->rakutenPurchases()->get();
+        $oldPurchase = OldRakutenPurchase::where('user_id', $oldUser->id)
+            ->where('history_id', $oldHistory->id)
+            ->first();
 
-        foreach ($purchases as $oldPurchase) {
+        if (is_null($oldPurchase)) {
+            Log::info("No found order => process is continue .... ");
+        } else {
+            $new = new NextRakutenPurchase();
             $new->open_id = $nextUser->external_id;
             $new->order_cart_id = $oldPurchase->order_cart_id;
             $new->order_control_id = $oldPurchase->order_control_id;
@@ -65,6 +71,8 @@ final class RakutenPayService implements IMigrateService
             $new->created_at = $oldPurchase->created_at;
             $new->updated_at = $oldPurchase->updated_at;
             $new->params = $jsonParams;
+
+            Log::info("Start save to {$new->getTable()}");
 
             if ($new->save()) {
                 Log::info("rakuten purchase saved successfully.", ['open_id' => $new->open_id]);

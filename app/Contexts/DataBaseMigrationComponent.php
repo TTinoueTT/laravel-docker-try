@@ -81,7 +81,7 @@ class DataBaseMigrationComponent
                     * => 190 Softbank
                     * => 22, 21 Rakuten
                     */
-                    // if ($oldUser->id != 279) {
+                    // if ($oldUser->id != 22) {
                     //     continue;
                     // }
 

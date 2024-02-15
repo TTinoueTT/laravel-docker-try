@@ -8,6 +8,7 @@ use App\Models\Next\NextUser;
 use App\Models\Next\Payment\NextAmazonPayBillingAgreement;
 use App\Models\Next\Payment\NextAmazonPayOrderReference;
 use App\Models\Old\OldUser;
+use App\Models\Old\OldHistory;
 use App\Models\Old\Payment\OldAmazonPayBillingAgreement;
 use App\Models\Old\Payment\OldAmazonPayOrderReference;
 use App\Services\IMigrateService;
@@ -59,12 +60,16 @@ final class AmazonPayService implements IMigrateService
     }
 
 
-    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, string $jsonParams)
+    public function migrateOrder(NextUser $nextUser, OldUser $oldUser, OldHistory $oldHistory, string $jsonParams)
     {
-        $new = new NextAmazonPayOrderReference();
-        $purchases = $oldUser->amazonPayOrderReferences()->get();
+        $oldPurchase = OldAmazonPayOrderReference::where('user_id', $oldUser->id)
+            ->where('history_id', $oldHistory->id)
+            ->first();
 
-        foreach ($purchases as $oldPurchase) {
+        if (is_null($oldPurchase)) {
+            Log::info("No found order => process is continue .... ");
+        } else {
+            $new = new NextAmazonPayOrderReference();
             $new->open_id = $nextUser->external_id;
             $new->billing_agreement_id = $oldPurchase->billing_agreement_id;
             $new->amazon_order_reference_id = $oldPurchase->amazon_order_reference_id;

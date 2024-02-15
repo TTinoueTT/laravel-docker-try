@@ -2,10 +2,7 @@
 
 namespace App\Services\Payment;
 
-use App\Enums\PaymentType;
 use App\Models\BaseModel;
-use App\Models\Next\Payment\NextDocomoSubscription;
-use App\Models\Next\Payment\NextDocomoSuid;
 use App\Models\Next\Payment\NextOpenId;
 use App\Models\Old\OldUser;
 use App\Services\IMigrateService;
