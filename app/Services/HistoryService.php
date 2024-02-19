@@ -16,6 +16,8 @@ use App\Services\Payment\SoftBankPaymentService;
 use App\Services\Payment\DocomoPaymentService;
 use App\Services\Payment\RakutenPayService;
 
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 final class HistoryService implements IMigrateService
@@ -58,12 +60,43 @@ final class HistoryService implements IMigrateService
             throw new \InvalidArgumentException('Expected an instance of OldUser');
         }
 
-        $histories = $oldUser->histories()->orderBy('created_at', 'desc')->get();
+        $histories = $oldUser->histories()
+            ->where('is_free', '!=', 1)
+            ->where('price', '>', 0)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        foreach ($histories as $oldHistory) {
-            if ($oldHistory->is_free == 1) {
-                continue;
-            }
+        /*
+        * $histories のモデルリストから、
+        * itemcd, profile_id, target_profile_id の組み合わせ で
+        * 重複するデータを除いた 新しい filterHistories を用意
+        */
+        $filteredHistories = $histories->map(function ($history) {
+            // 一意の識別子を作成
+            $uniqueKey = $history->itemcd . '|' . $history->profile_id . '|' . $history->target_profile_id;
+            $history->uniqueKey = $uniqueKey; // 一時的にユニークキーをモデルに追加
+            return $history;
+        })->unique('uniqueKey')->map(function ($history) {
+            // 一時的に追加したユニークキーを削除
+            unset($history->uniqueKey);
+            return $history;
+        });
+
+        // foreach ($filteredHistories as $history) {
+        //     // foreach ($histories as $history) {
+        //     // history の中で、itemcd, profile_id, target_profile_id の組み合わせ で重複するデータがある場合
+        //     // $histories からその要素を削除する。created_at が一番古いものを
+        //     dump($history);
+        // }
+
+        // $items = $filteredHistories->map(function (OldHistory $history) {
+        //     // $items = $histories->map(function (OldHistory $history) {
+        //     return "{$history->itemcd}: {$history->created_at}";
+        // });
+        // dump($items);
+
+        foreach ($filteredHistories as $oldHistory) {
+            // $newHistory = $this->saveNew($oldHistory, $nextUser, $migrateProfileIdMap);
 
             $newHistory = $this->oldToNew($oldHistory, new NextHistory(), $nextUser, $migrateProfileIdMap);
 
@@ -95,12 +128,11 @@ final class HistoryService implements IMigrateService
                     NextHistory::TARGET_PROFILE_ID => $newHistory->target_profile_id,
                 ]);
             } else {
-                Log::error("Failed to save the history.");
-            }
 
-            // 決済注文レコードの移行をこのあたりで行う
-            if ($oldHistory->price > 0) {
-                $this->savePaymentOrder($newHistory, $oldHistory, $nextUser, $oldUser);
+                // 決済注文レコードの移行をこのあたりで行う
+                if ($oldHistory->price > 0) {
+                    $this->savePaymentOrder($newHistory, $oldHistory, $nextUser, $oldUser);
+                }
             }
         }
 
@@ -111,34 +143,46 @@ final class HistoryService implements IMigrateService
      * 旧情報を新情報に移行
      * @param BaseModel $old
      * @param NextHistory $new
+     * @param NextUser $nextUser
+     * @param MigrateProfileIdMapDto|null $migrateProfileIdMap
      * @return NextHistory
      */
     private function oldToNew(
         BaseModel $old,
         NextHistory $new,
         NextUser $nextUser,
-        MigrateProfileIdMapDto $migrateProfileIdMap
+        ?MigrateProfileIdMapDto $migrateProfileIdMap
     ): NextHistory {
         $new->user_id = $nextUser->id;
         $new->itemcd = $old->itemcd;
         $new->payment_type = $nextUser->payment_type;
         $new->content_key = "NMA";
 
-        foreach ($migrateProfileIdMap->getSingle() as $migrateIdMapDto) {
-            if ($old->profile_id == $migrateIdMapDto->getOld()) {
-                $new->profile_id = $migrateIdMapDto->getNew();
+        if ($migrateProfileIdMap) {
+            foreach ($migrateProfileIdMap->getSingle() as $migrateIdMapDto) {
+                if ($old->profile_id == $migrateIdMapDto->getOld()) {
+                    $new->profile_id = $migrateIdMapDto->getNew();
+                }
             }
-        }
 
-        foreach ($migrateProfileIdMap->getTarget() as $migrateIdMapDto) {
-            if ($old->target_profile_id > 0 && $old->target_profile_id == $migrateIdMapDto->getOld()) {
-                $new->target_profile_id = $migrateIdMapDto->getNew();
+            foreach ($migrateProfileIdMap->getTarget() as $migrateIdMapDto) {
+                if ($old->target_profile_id > 0 && $old->target_profile_id == $migrateIdMapDto->getOld()) {
+                    $new->target_profile_id = $migrateIdMapDto->getNew();
+                }
             }
         }
 
         return $new;
     }
 
+    /**
+     * 決済注文レコードの移行実行
+     * @param NextHistory $nextHistory
+     * @param OldHistory $oldHistory
+     * @param NextUser $nextUser
+     * @param OldUser $oldUser
+     * @return void
+     */
     private function savePaymentOrder(NextHistory $nextHistory, OldHistory $oldHistory, NextUser $nextUser, OldUser $oldUser)
     {
         switch ($nextHistory->payment_type) {
