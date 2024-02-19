@@ -169,6 +169,9 @@ final class UserService implements IMigrateService
      */
     private function findAndSavePaymentType(OldUser $oldUser): int
     {
+        Log::info("============================================================");
+        Log::info("************ payment subscription data process ************");
+        Log::info("============================================================");
         $paymentType = PaymentType::UNKNOWN;
         // SOFTBANK
         if ($paymentType == PaymentType::UNKNOWN) {

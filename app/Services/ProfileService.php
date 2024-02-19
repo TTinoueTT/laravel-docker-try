@@ -103,7 +103,7 @@ final class ProfileService implements IMigrateService
         $nextUser->prefer_target_profile_id = $preferTargetId;
 
         if ($nextUser->save()) {
-            Log::info("User update successfully, pre", ['user_id' => $nextUser->id]);
+            Log::info("User update successfully,", ['user_id' => $nextUser->id]);
         } else {
             Log::error("Failed to save the user.");
         }

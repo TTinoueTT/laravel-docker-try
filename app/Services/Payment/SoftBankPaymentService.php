@@ -69,7 +69,7 @@ final class SoftBankPaymentService implements IMigrateService
         $purchases = $oldUser->softbankPurchases()->get();
         // 重複するhistoryの存在チェック
         $oldPurchase = OldSoftbankPurchase::where('user_id', $oldUser->user_id)
-            ->where('history_id', $$oldHistory->id)
+            ->where('history_id', $oldHistory->id)
             ->first();
 
         if (is_null($oldPurchase)) {
