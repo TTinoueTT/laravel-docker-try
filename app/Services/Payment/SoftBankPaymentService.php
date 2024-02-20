@@ -65,11 +65,9 @@ final class SoftBankPaymentService implements IMigrateService
 
     public function migrateOrder(NextUser $nextUser, OldUser $oldUser, OldHistory $oldHistory, string $jsonParams)
     {
-        $new = new NextSoftBankPurchase();
-        $purchases = $oldUser->softbankPurchases()->get();
         // 重複するhistoryの存在チェック
-        $oldPurchase = OldSoftbankPurchase::where('user_id', $oldUser->user_id)
-            ->where('history_id', $oldHistory->id)
+        $oldPurchase = OldSoftbankPurchase::where(OldSoftbankPurchase::USER_ID, $oldUser->id)
+            ->where(OldSoftbankPurchase::HISTORY_ID, $oldHistory->id)
             ->first();
 
         if (is_null($oldPurchase)) {

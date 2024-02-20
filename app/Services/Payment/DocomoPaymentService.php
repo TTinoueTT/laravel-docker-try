@@ -55,6 +55,7 @@ final class DocomoPaymentService implements IMigrateService
             $new->updated_at = $lastSubscription->updated_at;
             // $new->params = $lastSubscription->params; 必要であれば
 
+
             Log::info("Start save to {$new->getTable()}");
             if ($new->save()) {
                 Log::info("docomo subscription saved successfully.", ['open_id' => $new->open_id]);
@@ -136,6 +137,13 @@ final class DocomoPaymentService implements IMigrateService
         $new->guid = $suidData->guid;
         $new->created_at = $suidData->created_at;
         $new->updated_at = $suidData->updated_at;
+
+        Log::info("Start save to {$new->getTable()}");
+        if ($new->save()) {
+            Log::info("docomo suid saved successfully.", ['suid' => $new->suid]);
+        } else {
+            Log::error("Failed to save the docomo subscription.");
+        }
 
         return $new;
     }
