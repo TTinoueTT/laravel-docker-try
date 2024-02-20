@@ -15,6 +15,7 @@ use App\Services\UserService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Collection;
+
 use RuntimeException;
 
 class DataBaseMigrationComponent
@@ -68,7 +69,7 @@ class DataBaseMigrationComponent
 
         try {
             // OldUser::orderBy('id', 'asc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
-            OldUser::orderBy('id', 'desc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
+            OldUser::orderBy('id', 'desc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) { // こちらが正しい
                 // 処理回数を追跡するカウンタ
                 foreach ($oldUsers as $oldUser) {
 

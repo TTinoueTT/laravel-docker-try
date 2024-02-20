@@ -128,11 +128,12 @@ final class HistoryService implements IMigrateService
                     NextHistory::TARGET_PROFILE_ID => $newHistory->target_profile_id,
                 ]);
             } else {
+                Log::error("Failed to save the history.");
+            }
 
-                // 決済注文レコードの移行をこのあたりで行う
-                if ($oldHistory->price > 0) {
-                    $this->savePaymentOrder($newHistory, $oldHistory, $nextUser, $oldUser);
-                }
+            // 決済注文レコードの移行をこのあたりで行う
+            if ($oldHistory->price > 0) {
+                $this->savePaymentOrder($newHistory, $oldHistory, $nextUser, $oldUser);
             }
         }
 
