@@ -188,4 +188,6 @@ return [
 
     'director_mail_address' => env('DIRECTOR_MAIL_ADDRESS', ""),
 
+    "migrate_exec_pattern" => env("MIGRATE_EXEC_PATTERN", 1),
+    "diff_before_migrate_time" => env("DIFF_BEFORE_MIGRATE_TIME", "2024-03-20"),
 ];

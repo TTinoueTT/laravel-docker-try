@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Enums\Old\SoftbankStatus;
 use App\Enums\OpenIdCarrierType;
 use App\Enums\PaymentType;
 use App\Models\BaseModel;
@@ -36,6 +37,20 @@ final class SoftBankPaymentService implements IMigrateService
             return PaymentType::UNKNOWN;
         } else {
             $lastSubscription = $subscriptions->last();
+            # MIGRATE_EXEC_PATTERN によって処理の中断を行う
+            if (config("migrate_exec_pattern") == 1) {
+                # 退会ステータス以外のものは skip
+                if ($lastSubscription->our_status != SoftbankStatus::CANCELED) {
+                    return PaymentType::UNKNOWN;
+                }
+            } else {
+                //2回目実行の処理
+                // updated_at が config("diff_before_migrate_time")よりも前のものは skip
+                if ($lastSubscription->updated_at < config("diff_before_migrate_time")) {
+                    return PaymentType::UNKNOWN;
+                }
+            }
+
             $openIdProfile = $this->openIdService->migrateOldToNewWithCarrier($oldUser, OpenIdCarrierType::SOFTBANK);
 
             $new = new NextSoftBankSubscription();
