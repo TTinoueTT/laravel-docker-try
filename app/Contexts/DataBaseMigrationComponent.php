@@ -82,7 +82,7 @@ class DataBaseMigrationComponent
                     * => 190 Softbank
                     * => 22, 21 Rakuten
                     */
-                    // if ($oldUser->id != 22) {
+                    // if ($oldUser->id != 8603) {
                     //     continue;
                     // }
 
@@ -90,6 +90,10 @@ class DataBaseMigrationComponent
                     Log::info("*************************************************************");
                     Log::info("Start migrate user ((( id: {$oldUser->id} )))");
                     Log::info("↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓");
+                    if (false !== strpos($oldUser->email, config('director_mail_address'))) {
+                        continue;
+                    }
+
 
                     $nextUser = $this->userService->migrateOldToNew($oldUser);
                     if ($nextUser == null) {

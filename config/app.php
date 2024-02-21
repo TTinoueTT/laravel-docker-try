@@ -185,4 +185,7 @@ return [
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
+
+    'director_mail_address' => env('DIRECTOR_MAIL_ADDRESS', ""),
+
 ];

@@ -147,7 +147,7 @@ final class ProfileService implements IMigrateService
 
     /**
      * 重複データの不在確認処理、あれば最初の profile id を返却
-     * @param Collection $profiles
+     * @param Collection $profiles 古い user_id に紐づく profiles または target Profiles
      * @return array
      */
     private function getDuplicateIdsIfDuplicateBirthdaysAndNames(Collection $profiles): ?array
@@ -164,11 +164,20 @@ final class ProfileService implements IMigrateService
 
         // 重複があるかどうかをチェック
         if ($duplicates->isNotEmpty()) {
+            Log::info("重複したデータが存在します。");
             $duplicateIds = [];
             foreach ($duplicates->first() as $profile) {
                 array_push($duplicateIds, $profile->id);
             }
-            Log::info("重複したデータが存在します。");
+            /*
+                $duplicateIds は重複したデータをもつ profile の id を配列にしたもの
+                array:3 [
+                    0 => 6242
+                    1 => 6243
+                    2 => 6339
+                ] // app/Services/ProfileService.php:172
+                この時、6242, 6243, 6339 は 同一の名前と誕生日を持つ
+            */
             return $duplicateIds;
         } else {
             Log::info("重複したデータはありません。");
@@ -209,7 +218,7 @@ final class ProfileService implements IMigrateService
 
     /**
      * targetProfile 情報を整合性とるために、history の更新 と targetProfile の削除
-     * @param Collection $targetProfiles
+     * @param Collection $targetProfiles 古い user_id に紐づく target Profiles
      * @param OldUser $oldUser
      * @return void
      */
@@ -218,6 +227,11 @@ final class ProfileService implements IMigrateService
         $dupProfileIds = $this->getDuplicateIdsIfDuplicateBirthdaysAndNames($targetProfiles);
         if ($dupProfileIds) {
             $firstId = array_shift($dupProfileIds);
+            /*
+                dupProfileIds が [6242,6243,6339] ← このような配列の時、
+                $firstId に 先頭の 6242 が代入され、参照渡しにより、
+                dupProfileIds は、[6243,6339] となる
+             */
 
             foreach ($dupProfileIds as $id) {
                 // 条件にあった histories にあるレコードのデータを更新させる
@@ -225,14 +239,30 @@ final class ProfileService implements IMigrateService
                     ->where("target_profile_id", $id)
                     ->update(["target_profile_id" => $firstId]);
 
+                // dump(OldHistory::where("user_id", $oldUser->id)
+                //     ->where("target_profile_id", $firstId));
+
+                // dd($oldUser->histories()->get());
+                // Log::info($id);
+                // if ($id == 6339) {
+                //     dd($oldUser->histories()->get()->map(function ($history) {
+                //         return $history->target_profile_id;
+                //     }));
+                //     # code...
+                //     dd($oldUser->histories()->get());
+                // }
                 OldTargetProfile::destroy($id);
                 Log::info("delete profile id: {$id}");
 
                 foreach ($targetProfiles as $i => $profile) {
                     if ($profile->id == $id) {
+                        /* 参照渡ししている、$targetProfiles から一致する profile を削除 */
+
                         unset($targetProfiles[$i]);
                     }
                 }
+
+                // dd($targetProfiles);
             }
         }
     }

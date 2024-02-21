@@ -21,20 +21,20 @@ final class UserService implements IMigrateService
 {
     private  $amazonPayService;
     private  $auPaymentService;
-    private  $softPaymentService;
+    private  $softbankPaymentService;
     private  $docomoPaymentService;
     private  $rakutenPayService;
 
     public function __construct(
         AmazonPayService $amazonPayService,
         AuPaymentService $auPaymentService,
-        SoftBankPaymentService $softPaymentService,
+        SoftBankPaymentService $softbankPaymentService,
         DocomoPaymentService $docomoPaymentService,
         RakutenPayService $rakutenPayService
     ) {
         $this->amazonPayService = $amazonPayService;
         $this->auPaymentService = $auPaymentService;
-        $this->softPaymentService = $softPaymentService;
+        $this->softbankPaymentService = $softbankPaymentService;
         $this->docomoPaymentService = $docomoPaymentService;
         $this->rakutenPayService = $rakutenPayService;
     }
@@ -175,7 +175,7 @@ final class UserService implements IMigrateService
         $paymentType = PaymentType::UNKNOWN;
         // SOFTBANK
         if ($paymentType == PaymentType::UNKNOWN) {
-            $paymentType = $this->softPaymentService->migrateOldToNew($oldUser);
+            $paymentType = $this->softbankPaymentService->migrateOldToNew($oldUser);
         }
         // AU
         if ($paymentType == PaymentType::UNKNOWN) {
@@ -202,7 +202,7 @@ final class UserService implements IMigrateService
         $isExists = false;
         switch ($nextUser->payment_type) {
             case PaymentType::SOFTBANK:
-                $isExists = $this->softPaymentService->checkDuplicateOpenId($nextUser->external_id);
+                $isExists = $this->softbankPaymentService->checkDuplicateOpenId($nextUser->external_id);
                 break;
             case PaymentType::AU:
                 $isExists = $this->auPaymentService->checkDuplicateOpenId($nextUser->external_id);

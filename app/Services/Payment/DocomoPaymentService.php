@@ -50,7 +50,11 @@ final class DocomoPaymentService implements IMigrateService
             $new->docomo_subscription_status = $lastSubscription->transaction_type;
             $new->docomo_token = $lastSubscription->docomo_token;
             $new->docomo_order_no = $lastSubscription->docomo_order_no;
-            $new->docomo_auth_time = $lastSubscription->docomo_auth_time;
+
+            if ($lastSubscription->docomo_auth_time != '0000-00-00 00:00:00') {
+                $new->docomo_auth_time = $lastSubscription->docomo_auth_time;
+            }
+
             $new->created_at = $lastSubscription->created_at;
             $new->updated_at = $lastSubscription->updated_at;
             // $new->params = $lastSubscription->params; 必要であれば
