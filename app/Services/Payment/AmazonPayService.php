@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Enums\Old\AmazonPayStatus;
 use App\Enums\PaymentType;
 use App\Models\BaseModel;
 use App\Models\Next\NextUser;
@@ -35,6 +36,20 @@ final class AmazonPayService implements IMigrateService
             return PaymentType::UNKNOWN;
         } else {
             $lastBillingAgreement = $billingAgreements->last();
+            if (config("app.migrate_exec_pattern") == 1) {
+                # 退会ステータス以外のものは skip
+                if ($lastBillingAgreement->status != AmazonPayStatus::CANCELED) {
+                    return PaymentType::UNKNOWN;
+                }
+            } else {
+                /*
+                # 2回目実行の処理
+                # updated_at が config("diff_before_migrate_time")よりも前のもので退会ステータスは skip
+                */
+                if ($lastBillingAgreement->updated_at < config("app.diff_before_migrate_time") &&  $lastBillingAgreement->status == AmazonPayStatus::CANCELED) {
+                    return PaymentType::UNKNOWN;
+                }
+            }
             // $lastBillingAgreement を使用した処理...
             $new = new NextAmazonPayBillingAgreement();
             $new->open_id = $oldUser->email;

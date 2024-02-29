@@ -38,15 +38,17 @@ final class SoftBankPaymentService implements IMigrateService
         } else {
             $lastSubscription = $subscriptions->last();
             # MIGRATE_EXEC_PATTERN によって処理の中断を行う
-            if (config("migrate_exec_pattern") == 1) {
+            if (config("app.migrate_exec_pattern") == 1) {
                 # 退会ステータス以外のものは skip
                 if ($lastSubscription->our_status != SoftbankStatus::CANCELED) {
                     return PaymentType::UNKNOWN;
                 }
             } else {
-                //2回目実行の処理
-                // updated_at が config("diff_before_migrate_time")よりも前のものは skip
-                if ($lastSubscription->updated_at < config("diff_before_migrate_time")) {
+                /*
+                # 2回目実行の処理
+                # updated_at が config("diff_before_migrate_time")よりも前のもので退会ステータスは skip
+                */
+                if ($lastSubscription->updated_at < config("app.diff_before_migrate_time") && $lastSubscription->our_status == SoftbankStatus::CANCELED) {
                     return PaymentType::UNKNOWN;
                 }
             }

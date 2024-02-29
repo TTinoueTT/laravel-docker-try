@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Enums\Old\RakutenPayStatus;
 use App\Enums\PaymentType;
 use App\Models\BaseModel;
 use App\Models\Next\NextUser;
@@ -28,6 +29,22 @@ final class RakutenPayService implements IMigrateService
             return PaymentType::UNKNOWN;
         } else {
             $lastSubscription = $subscriptions->last();
+
+            # MIGRATE_EXEC_PATTERN によって処理の中断を行う
+            if (config("app.migrate_exec_pattern") == 1) {
+                # 退会ステータス以外のものは skip
+                if ($lastSubscription->status != RakutenPayStatus::CANCELED) {
+                    return PaymentType::UNKNOWN;
+                }
+            } else {
+                /*
+                # 2回目実行の処理
+                # updated_at が config("diff_before_migrate_time")よりも前のもので退会ステータスは skip
+                */
+                if ($lastSubscription->updated_at < config("app.diff_before_migrate_time") && $lastSubscription->status == RakutenPayStatus::CANCELED) {
+                    return PaymentType::UNKNOWN;
+                }
+            }
 
             $new = new NextRakutenSubscription();
             $new->open_id = $lastSubscription->open_id;

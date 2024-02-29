@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Enums\Old\AuStatus;
 use App\Enums\OpenIdCarrierType;
 use App\Enums\PaymentType;
 use App\Models\BaseModel;
@@ -36,6 +37,20 @@ final class AuPaymentService implements IMigrateService
             return PaymentType::UNKNOWN;
         } else {
             $lastSubscription = $subscriptions->last();
+            if (config("app.migrate_exec_pattern") == 1) {
+                # 退会ステータス以外のものは skip
+                if ($lastSubscription->our_status != AuStatus::CANCELED) {
+                    return PaymentType::UNKNOWN;
+                }
+            } else {
+                /*
+                # 2回目実行の処理
+                # updated_at が config("diff_before_migrate_time")よりも前のもので退会ステータスは skip
+                */
+                if ($lastSubscription->updated_at < config("app.diff_before_migrate_time") && $lastSubscription->our_status == AuStatus::CANCELED) {
+                    return PaymentType::UNKNOWN;
+                }
+            }
             $openIdProfile = $this->openIdService->migrateOldToNewWithCarrier($oldUser, OpenIdCarrierType::AU);
 
             $new = new NextAuSubscription();

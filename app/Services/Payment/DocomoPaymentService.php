@@ -2,6 +2,7 @@
 
 namespace App\Services\Payment;
 
+use App\Enums\Old\DocomoStatus;
 use App\Enums\OpenIdCarrierType;
 use App\Enums\PaymentType;
 use App\Models\BaseModel;
@@ -36,8 +37,22 @@ final class DocomoPaymentService implements IMigrateService
             return PaymentType::UNKNOWN;
         } else {
             $lastSubscription = $subscriptions->last();
-
             $nextDocomoSuid = $this->migrateSuid($oldUser);
+
+            if (config("app.migrate_exec_pattern") == 1) {
+                # 退会ステータス以外のものは skip
+                if (false === strpos($nextDocomoSuid->open_id, 'set_ban')) {
+                    return PaymentType::UNKNOWN;
+                }
+            } else {
+                /*
+                # 2回目実行の処理
+                # updated_at が config("diff_before_migrate_time")よりも前のもので退会ステータスは skip
+                */
+                if ($lastSubscription->updated_at < config("app.diff_before_migrate_time") && false !== strpos($nextDocomoSuid->open_id, 'set_ban')) {
+                    return PaymentType::UNKNOWN;
+                }
+            }
 
             $new = new NextDocomoSubscription();
             $new->open_id = $nextDocomoSuid->open_id;

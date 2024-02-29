@@ -173,6 +173,9 @@ final class HistoryService implements IMigrateService
             }
         }
 
+        $new->created_at = $old->created_at;
+        $new->updated_at = $old->updated_at;
+
         return $new;
     }
 

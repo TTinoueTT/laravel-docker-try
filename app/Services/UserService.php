@@ -49,7 +49,16 @@ final class UserService implements IMigrateService
         $nextUser->interest_type = $this->exchangeIntent($oldUser->intent);
         $nextUser->payment_type = $this->findAndSavePaymentType($oldUser);
 
-        $externalId = $this->setExternalId($nextUser, $oldUser);
+        if ($nextUser->payment_type == PaymentType::UNKNOWN) {
+            return null;
+        }
+
+        if (config("app.migrate_exec_pattern") == 1) {
+            $externalId = $this->setExternalId($nextUser, $oldUser, true);
+        } else {
+            $externalId = $this->setExternalId($nextUser, $oldUser, false);
+        }
+
         if (empty($externalId)) {
             return null;
         }
@@ -88,7 +97,7 @@ final class UserService implements IMigrateService
      * @param OldUser $oldUser
      * @return string
      */
-    private function setExternalId(NextUser $nextUser, OldUser $oldUser): string
+    private function setExternalId(NextUser $nextUser, OldUser $oldUser, bool $isUnsubscribe): string
     {
         if (in_array($nextUser->payment_type, OpenIdCarrierType::getValues())) {
             $openIdProfile = $oldUser->openIdProfiles()->get()->first();
@@ -103,6 +112,11 @@ final class UserService implements IMigrateService
             $nextUser->external_id = $oldUser->email;
         }
 
+        if ($isUnsubscribe) {
+            $random12Str = RandomComponent::Generate(12);
+            $nextUser->external_id = "{$nextUser->external_id}__closed__{$random12Str}";
+        }
+
         return $nextUser->external_id;
     }
 
@@ -114,7 +128,7 @@ final class UserService implements IMigrateService
     {
         do {
             // 一意の migration_code を生成
-            $uniqueMigrationCode = RandomComponent::Generate(12);
+            $uniqueMigrationCode = RandomComponent::Generate(36);
             // 生成した migration_code が NextUser モデルのテーブルに存在するか確認
             $exists = NextUser::where('migration_code', $uniqueMigrationCode)->exists();
         } while ($exists); // 生成した migration_code が既に存在する場合は再度生成
