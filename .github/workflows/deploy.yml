@@ -1,0 +1,24 @@
+# name: AWS Code Deploy (dev)
+
+# on:
+#   push:
+#     branches:
+#       - dev
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v3
+
+#       - name: Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ap-northeast-1
+
+#       - name: Run AWS CodeDeploy for db-migrator
+#         run: aws deploy create-deployment --application-name "db-migrator" --deployment-group-name "db-migrator" --github-location repository="$GITHUB_REPOSITORY",commitId="$GITHUB_SHA" --file-exists-behavior "OVERWRITE"
