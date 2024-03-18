@@ -82,9 +82,9 @@ class DataBaseMigrationComponent
                     * => 190 Softbank
                     * => 22, 21 Rakuten
                     */
-                    // if ($oldUser->id != 14466) {
-                    //     continue;
-                    // }
+                    if ($oldUser->id != 14407) {
+                        continue;
+                    }
 
                     # users レコードの移行(決済継続データの移行も)
                     Log::info("*************************************************************");
