@@ -70,11 +70,22 @@ final class AmazonPayService implements IMigrateService
                 Log::error("Failed to save the billing agreement.");
             }
 
+            # 継続課金の注文レコードを作成
+            $this->migrateSubscriptionOrder($lastBillingAgreement, $new);
+
             return PaymentType::AMAZON;
         }
     }
 
 
+    /**
+     * 注文データの移行処理
+     * @param NextUser $nextUser
+     * @param OldUser $oldUser
+     * @param OldHistory $oldHistory
+     * @param string $jsonParams
+     * @return void
+     */
     public function migrateOrder(NextUser $nextUser, OldUser $oldUser, OldHistory $oldHistory, string $jsonParams)
     {
         $oldPurchase = OldAmazonPayOrderReference::where('user_id', $oldUser->id)
@@ -84,9 +95,10 @@ final class AmazonPayService implements IMigrateService
         if (is_null($oldPurchase)) {
             Log::info("No found order => process is continue .... ");
         } else {
+            $nextAmazonPayBillingAgreement = NextAmazonPayBillingAgreement::where(NextAmazonPayBillingAgreement::OPEN_ID, $nextUser->external_id)->first();
             $new = new NextAmazonPayOrderReference();
             $new->open_id = $nextUser->external_id;
-            $new->billing_agreement_id = $oldPurchase->billing_agreement_id;
+            $new->billing_agreement_id = $nextAmazonPayBillingAgreement->id;
             $new->amazon_order_reference_id = $oldPurchase->amazon_order_reference_id;
             $new->price = $oldPurchase->order_amount;
             $new->order_reference_state = $oldPurchase->status;
@@ -115,5 +127,36 @@ final class AmazonPayService implements IMigrateService
     {
         $exists = NextAmazonPayBillingAgreement::where('open_id', $openId)->exists();
         return $exists;
+    }
+
+    /**
+     * 継続課金注文のレコードを移行処理
+     * @param OldAmazonPayBillingAgreement $oldBillingAgreement
+     * @param NextAmazonPayBillingAgreement $nextBillingAgreement
+     * @return void
+     */
+    private function migrateSubscriptionOrder(OldAmazonPayBillingAgreement $oldBillingAgreement, NextAmazonPayBillingAgreement $nextBillingAgreement)
+    {
+        $oldPurchase = OldAmazonPayOrderReference::where(OldAmazonPayOrderReference::BILLING_AGREEMENT_ID, $oldBillingAgreement->id)
+            ->where(OldAmazonPayOrderReference::ORDER_AMOUNT, '330')
+            ->first();
+
+        $new = new NextAmazonPayOrderReference();
+        $new->open_id = $nextBillingAgreement->open_id;
+        $new->billing_agreement_id = $nextBillingAgreement->id;
+        $new->amazon_order_reference_id = $oldPurchase->amazon_order_reference_id;
+        $new->price = $oldPurchase->order_amount;
+        $new->order_reference_state = $oldPurchase->status;
+        $new->order_reference_reason_code = $oldPurchase->state_reason;
+        $new->created_at = $oldPurchase->created_at;
+        $new->updated_at = $oldPurchase->updated_at;
+        // $new->params = $jsonParams;
+
+        Log::info("Start save to {$new->getTable()}");
+        if ($new->save()) {
+            Log::info("amazon purchase saved successfully.", ['open_id' => $new->open_id]);
+        } else {
+            Log::error("Failed to save the amazon purchase.");
+        }
     }
 }
