@@ -39,6 +39,12 @@ final class UserService implements IMigrateService
         $this->rakutenPayService = $rakutenPayService;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param BaseModel $oldUser
+     * @return NextUser|null
+     */
     public function migrateOldToNew(BaseModel $oldUser): ?NextUser
     {
         if (!$oldUser instanceof OldUser) {

@@ -35,8 +35,8 @@ class DataBaseMigrate extends Command
     public function handle(): void
     {
         $this->info('app:db-migrate');
-        $idList = $this->option('id');
         $sort = $this->option('sort');
+        $idList = $this->option('id');
 
         $this->dbMigrationComponent->migrate_exec($sort, $idList);
     }
