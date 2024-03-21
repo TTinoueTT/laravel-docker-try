@@ -46,10 +46,10 @@ class DataBaseMigrationComponent
      * Undocumented function
      *
      * @param string $sort
-     * @param  mixed  $userId
+     * @param  mixed  $userIdList
      * @return void
      */
-    public function migrate_exec($sort = 'desc', $userId = null): void
+    public function migrate_exec($sort = 'desc', $userIdList = null): void
     {
 
         $k = "\/\\\\";
@@ -75,19 +75,20 @@ class DataBaseMigrationComponent
 
         try {
 
-            if ($userId) {
-                $oldUser = OldUser::find($userId);
-                $this->individual_migrate_process($oldUser);
+            if ($userIdList) {
+                foreach ($userIdList as $userId) {
+                    $oldUser = OldUser::find($userId);
+                    $this->individual_migrate_process($oldUser);
+                }
             } else {
                 OldUser::orderBy('id', $sort)->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
-                    // OldUser::orderBy('id', 'desc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) { // こちらが正しい
                     // 処理回数を追跡するカウンタ
                     foreach ($oldUsers as $oldUser) {
                         $this->individual_migrate_process($oldUser);
 
                         Log::info("======#{$counter}");
                         // chunk の処理を止めたい カウンタをインクリメント
-                        // $counter++;
+                        $counter++;
                     }
 
                     // 50回処理した後にchunkの処理を停止

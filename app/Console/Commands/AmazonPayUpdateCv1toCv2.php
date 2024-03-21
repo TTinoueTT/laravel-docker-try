@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Console\Command;
 use App\Contexts\AmazonPayUpdateComponent;
 
@@ -12,7 +13,7 @@ class AmazonPayUpdateCv1ToCv2 extends Command
      *
      * @var string
      */
-    protected $signature = 'amazon-pay:update-cv1-to-cv2 {size?}';
+    protected $signature = 'amazon-pay:update-cv1-to-cv2 {size?} {--id=*} {--start=} {--end=}';
 
     /**
      * The console command description.
@@ -41,16 +42,29 @@ class AmazonPayUpdateCv1ToCv2 extends Command
      */
     public function handle(): void
     {
-        $this->info('amazon_pay_update_cv1_to_cv2');
-        // $size = $this->option('size');
-        $sizeInfo = $this->amazonPayUpdateComponent->sizeInfo();
+        $this->info('amazon-pay:update-cv1-to-cv2');
+
+        $now = Carbon::now();
+
+        // $startOfMonthStr = $now->firstOfMonth()->startOfDay()->toDateTimeString(); // 今月初めの日時を取得
+        // $endOfMonthStr = $now->lastOfMonth()->endOfDay()->toDateTimeString(); // 今月末の日時を取得
+        $startOfMonthStr = $now->copy()->subMonth()->firstOfMonth()->startOfDay()->toDateTimeString(); // 先月初めの日時を取得
+        $endOfMonthStr = $now->copy()->subMonth()->lastOfMonth()->endOfDay()->toDateTimeString(); // 先月末の日時を取得
+
+        $startOfMonthStr = $this->option('start') ? $this->option('start') : $startOfMonthStr;
+        $endOfMonthStr = $this->option('end') ? $this->option('end') : $endOfMonthStr;
+
 
         if ($this->argument('size')) {
+            // size オプションの処理
+            $sizeInfo = $this->amazonPayUpdateComponent->sizeInfo($startOfMonthStr, $endOfMonthStr);
             $this->info("更新対象アカウント数: {$sizeInfo['size']}");
             $this->info("更新対象範囲開始日: {$sizeInfo['startOfMonthStr']}");
             $this->info("更新対象範囲終了日: {$sizeInfo['endOfMonthStr']}");
         } else {
-            // $this->amazonPayUpdateComponent->cv1_to_cv2();
+            // update の処理
+            $idList = $this->option('id');
+            $this->amazonPayUpdateComponent->cv1_to_cv2($startOfMonthStr, $endOfMonthStr, $idList);
         }
     }
 }

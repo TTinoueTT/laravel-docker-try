@@ -2,7 +2,6 @@
 
 namespace App\Contexts;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -26,46 +25,57 @@ class AmazonPayUpdateComponent
         $this->amazonPayCv2Service = $amazonPayCv2Service;
     }
 
-    public function cv1_to_cv2(): void
+    /**
+     * Cv1 から Cv2 のデータに移行
+     *
+     * @param string $startOfMonthStr
+     * @param string $endOfMonthStr
+     * @param mixed $idList - 個別指定して移行をする際の id 値
+     * @return void
+     */
+    public function cv1_to_cv2($startOfMonthStr, $endOfMonthStr, $idList): void
     {
-        $logHeader = "amazon pay update cv1 to cv2 : ";
-
         $repeatTime = 50;
         DB::connection('mysql_new_payment')->beginTransaction();
 
-        $now = Carbon::now();
-        // TODO 検証ように先月の時期に変更している。
-        // $startOfMonthStr = $now->firstOfMonth()->startOfDay()->toDateTimeString(); // 今月初めの日時を取得
-        // $endOfMonthStr = $now->lastOfMonth()->endOfDay()->toDateTimeString(); // 今月末の日時を取得
-        $startOfMonthStr = $now->copy()->subMonth()->firstOfMonth()->startOfDay()->toDateTimeString(); // 先月初めの日時を取得
-        $endOfMonthStr = $now->copy()->subMonth()->lastOfMonth()->endOfDay()->toDateTimeString(); // 先月末の日時を取得
-
         $client = new Client($this->amazonPayCv2Service->setConfig());
         try {
-            NextAmazonPayBillingAgreement::where(NextAmazonPayBillingAgreement::BILLING_AGREEMENT_STATE, '!=', AmazonPayStatus::CLOSED)
-                ->orderBy('id', 'asc')
-                ->chunk($repeatTime, function (Collection $cv1s) use ($client, $startOfMonthStr, $endOfMonthStr) {
-                    foreach ($cv1s as $cv1) {
-
-                        // TODO: 練習用に修正
-                        if ($cv1->id != config('app.amazon_pay_billing_agreement_id')) {
-                            continue;
-                        }
-
-                        # users レコードの移行(決済継続データの移行も)
+            if ($idList) {
+                foreach ($idList as $id) {
+                    $cv1 = NextAmazonPayBillingAgreement::find($id);
+                    # users レコードの移行(決済継続データの移行も)
+                    Log::info("*************************************************************");
+                    Log::info("Start update {$cv1->open_id} ((( id: {$cv1->id} )))");
+                    Log::info("↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓");
+                    $nextUser = $this->amazonPayCv2Service->updateCv1toCv2($client, $cv1, $startOfMonthStr, $endOfMonthStr);
+                    if ($nextUser == null) {
+                        Log::info("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
+                        Log::info("New user is null, old user ((( id :{$cv1->id} ))) has invalid parameter");
                         Log::info("*************************************************************");
-                        Log::info("Start update {$cv1->open_id} ((( id: {$cv1->id} )))");
-                        Log::info("↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓");
-
-                        $nextUser = $this->amazonPayCv2Service->updateCv1toCv2($client, $cv1, $startOfMonthStr, $endOfMonthStr);
-                        if ($nextUser == null) {
-                            Log::info("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
-                            Log::info("New user is null, old user ((( id :{$cv1->id} ))) has invalid parameter");
-                            Log::info("*************************************************************");
-                            continue;
-                        }
+                        continue;
                     }
-                });
+                }
+            } else {
+                NextAmazonPayBillingAgreement::where(NextAmazonPayBillingAgreement::BILLING_AGREEMENT_STATE, '!=', AmazonPayStatus::CLOSED)
+                    ->orderBy('id', 'asc')
+                    ->chunk($repeatTime, function (Collection $cv1s) use ($client, $startOfMonthStr, $endOfMonthStr) {
+                        foreach ($cv1s as $cv1) {
+
+                            # users レコードの移行(決済継続データの移行も)
+                            Log::info("*************************************************************");
+                            Log::info("Start update {$cv1->open_id} ((( id: {$cv1->id} )))");
+                            Log::info("↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓");
+
+                            $nextUser = $this->amazonPayCv2Service->updateCv1toCv2($client, $cv1, $startOfMonthStr, $endOfMonthStr);
+                            if ($nextUser == null) {
+                                Log::info("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
+                                Log::info("New user is null, old user ((( id :{$cv1->id} ))) has invalid parameter");
+                                Log::info("*************************************************************");
+                                continue;
+                            }
+                        }
+                    });
+            }
 
             DB::connection('mysql_new_payment')->commit();
         } catch (\Exception $e) {
@@ -79,20 +89,20 @@ class AmazonPayUpdateComponent
         }
     }
 
-    public function sizeInfo(): array
+    /**
+     * 更新対象アカウント数、更新対象範囲開始日、更新対象範囲終了日 の情報を持つオブジェクトを返却
+     *
+     * @param string $startOfMonthStr
+     * @param string $endOfMonthStr
+     * @return array
+     */
+    public function sizeInfo($startOfMonthStr, $endOfMonthStr): array
     {
-        $now = Carbon::now();
-        // $startOfMonthStr = $now->firstOfMonth()->startOfDay()->toDateTimeString(); // 今月初めの日時を取得
-        // $endOfMonthStr = $now->lastOfMonth()->endOfDay()->toDateTimeString(); // 今月末の日時を取得
-        $startOfMonthStr = $now->copy()->subMonth()->firstOfMonth()->startOfDay()->toDateTimeString(); // 先月初めの日時を取得
-        $endOfMonthStr = $now->copy()->subMonth()->lastOfMonth()->endOfDay()->toDateTimeString(); // 先月末の日時を取得
-
         $size = NextAmazonPayBillingAgreement::where(NextAmazonPayBillingAgreement::CREATED_AT, '>=', $startOfMonthStr)
             ->where(NextAmazonPayBillingAgreement::CREATED_AT, '<=', $endOfMonthStr)
             ->where(NextAmazonPayBillingAgreement::BILLING_AGREEMENT_STATE, '!=', AmazonPayStatus::CLOSED)
             ->count();
 
-        // $this->info($size);
         return [
             "size"            => $size,
             "startOfMonthStr" => $startOfMonthStr,
