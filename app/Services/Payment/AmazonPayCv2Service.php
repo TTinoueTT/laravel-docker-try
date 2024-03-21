@@ -60,8 +60,7 @@ class AmazonPayCv2Service
 
         Log::info("state = " . $chargePermissionResponse["statusDetails"]["state"]);
 
-        $amazonPaySubscription = $this->insertOfUpdateSubscription($cv1data, $chargePermissionResponse, $nextOrder);
-        $this->updateOrders($cv1data->open_id);
+        $amazonPaySubscription = $this->insertOrUpdateSubscription($cv1data, $chargePermissionResponse, $nextOrder);
 
         // users レコードの更新を行う
         $user = NextUser::where(NextUser::EXTERNAL_ID, $cv1data->open_id)->first();
@@ -100,7 +99,7 @@ class AmazonPayCv2Service
      * @param NextAmazonPayOrderReference $nextOrder
      * @return AmazonPaySubscription
      */
-    private function insertOfUpdateSubscription(NextAmazonPayBillingAgreement $cv1data, array $chargePermissionResponse, NextAmazonPayOrderReference $nextOrder): AmazonPaySubscription
+    private function insertOrUpdateSubscription(NextAmazonPayBillingAgreement $cv1data, array $chargePermissionResponse, NextAmazonPayOrderReference $nextOrder): AmazonPaySubscription
     {
         $amazonPaySubscription = AmazonPaySubscription::where(AmazonPaySubscription::BUYER_ID, $chargePermissionResponse["buyer"]["buyerId"])->first();
 

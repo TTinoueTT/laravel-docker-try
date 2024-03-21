@@ -28,55 +28,10 @@ class AmazonPayUpdateComponent
 
     public function cv1_to_cv2(): void
     {
-        // $logHeader = "amazon pay update cv1 to cv2 : ";
-
-        // $amazonPayBillingAgreementKeys = AmazonPayBillingAgreement::Keys();
-        // $amazonPayOrderReferencesKeys = AmazonPayOrderReferences::Keys();
-        // $amazonPaySubscriptionKeys = AmazonPaySubscription::Keys();
-        // $client = new Client($this->amazonPayCv2Service->setConfig());
-
-
-
-
-        # 検証用処理 -s
-
-        // $testOpenId = "director@rensa.co.jp"; # ① 本番環境ユーザ
-        // $testOpenId = "masaaki.higuchi@rensa.co.jp"; # ② test環境ユーザ
-
-        // $amazonPayBillingAgreementRecords =
-        //     AmazonPayBillingAgreement::Select(
-        //         AmazonPayBillingAgreement::TableName(),
-        //         "where " . $amazonPayBillingAgreementKeys::OPEN_ID . "= '" . $testOpenId .
-        //             "' AND " . $amazonPayBillingAgreementKeys::BILLING_AGREEMENT_STATE . " NOT IN (" . AmazonState::CANCELLED . ", " . AmazonState::CLOSED . ")"
-
-        //     );
-
-
-
-        // dd($amazonPayBillingAgreementRecords);
-        # 検証用処理 -e
-
-        // $amazonPayBillingAgreementRecords =
-        //     AmazonPayBillingAgreement::Select(
-        //         AmazonPayBillingAgreement::TableName(),
-        //         "where " . $amazonPayBillingAgreementKeys::BILLING_AGREEMENT_STATE . " NOT IN (" . AmazonState::CANCELLED . ", " . AmazonState::CLOSED . ")"
-        //     );
-
-        // // # Log::info($logHeader . "where '" . $amazonPayBillingAgreementKeys::BILLING_AGREEMENT_STATE . "' NOT IN (" . AmazonState::CANCELLED . ", " . AmazonState::CLOSED . ")");
-
-        // // dd($amazonPayBillingAgreementRecords);
-
-        // if (empty($amazonPayBillingAgreementRecords)) {
-        //     Log::info($logHeader . "amazonpay_billing_agreement record not found.");
-        //     return;
-        // }
+        $logHeader = "amazon pay update cv1 to cv2 : ";
 
         $repeatTime = 50;
         DB::connection('mysql_new_payment')->beginTransaction();
-
-        // $size = NextAmazonPayBillingAgreement::where('created_at', '>=', $startOfMonthStr)
-        //     ->where('created_at', '<=', $endOfMonthStr)
-        //     ->count();
 
         $now = Carbon::now();
         // TODO 検証ように先月の時期に変更している。
@@ -85,10 +40,6 @@ class AmazonPayUpdateComponent
         $startOfMonthStr = $now->copy()->subMonth()->firstOfMonth()->startOfDay()->toDateTimeString(); // 先月初めの日時を取得
         $endOfMonthStr = $now->copy()->subMonth()->lastOfMonth()->endOfDay()->toDateTimeString(); // 先月末の日時を取得
 
-        // $size = NextAmazonPayBillingAgreement::where(NextAmazonPayBillingAgreement::CREATED_AT, '>=', $startOfMonthStr)
-        //     ->where(NextAmazonPayBillingAgreement::CREATED_AT, '<=', $endOfMonthStr)
-        //     ->where(NextAmazonPayBillingAgreement::BILLING_AGREEMENT_STATE, '!=', AmazonPayStatus::CLOSED)
-        //     ->count();
         $client = new Client($this->amazonPayCv2Service->setConfig());
         try {
             NextAmazonPayBillingAgreement::where(NextAmazonPayBillingAgreement::BILLING_AGREEMENT_STATE, '!=', AmazonPayStatus::CLOSED)
@@ -97,7 +48,7 @@ class AmazonPayUpdateComponent
                     foreach ($cv1s as $cv1) {
 
                         // TODO: 練習用に修正
-                        if ($cv1->id != 1) {
+                        if ($cv1->id != config('app.amazon_pay_billing_agreement_id')) {
                             continue;
                         }
 
@@ -126,5 +77,26 @@ class AmazonPayUpdateComponent
             // 必要に応じてカスタム例外を投げる
             throw new RuntimeException("トランザクション中にエラーが発生しました。", 0, $e);
         }
+    }
+
+    public function sizeInfo(): array
+    {
+        $now = Carbon::now();
+        // $startOfMonthStr = $now->firstOfMonth()->startOfDay()->toDateTimeString(); // 今月初めの日時を取得
+        // $endOfMonthStr = $now->lastOfMonth()->endOfDay()->toDateTimeString(); // 今月末の日時を取得
+        $startOfMonthStr = $now->copy()->subMonth()->firstOfMonth()->startOfDay()->toDateTimeString(); // 先月初めの日時を取得
+        $endOfMonthStr = $now->copy()->subMonth()->lastOfMonth()->endOfDay()->toDateTimeString(); // 先月末の日時を取得
+
+        $size = NextAmazonPayBillingAgreement::where(NextAmazonPayBillingAgreement::CREATED_AT, '>=', $startOfMonthStr)
+            ->where(NextAmazonPayBillingAgreement::CREATED_AT, '<=', $endOfMonthStr)
+            ->where(NextAmazonPayBillingAgreement::BILLING_AGREEMENT_STATE, '!=', AmazonPayStatus::CLOSED)
+            ->count();
+
+        // $this->info($size);
+        return [
+            "size"            => $size,
+            "startOfMonthStr" => $startOfMonthStr,
+            "endOfMonthStr"   => $endOfMonthStr,
+        ];
     }
 }

@@ -12,7 +12,7 @@ class AmazonPayUpdateCv1ToCv2 extends Command
      *
      * @var string
      */
-    protected $signature = 'amazon_pay_update_cv1_to_cv2';
+    protected $signature = 'amazon-pay:update-cv1-to-cv2 {size?}';
 
     /**
      * The console command description.
@@ -42,6 +42,15 @@ class AmazonPayUpdateCv1ToCv2 extends Command
     public function handle(): void
     {
         $this->info('amazon_pay_update_cv1_to_cv2');
-        $this->amazonPayUpdateComponent->cv1_to_cv2();
+        // $size = $this->option('size');
+        $sizeInfo = $this->amazonPayUpdateComponent->sizeInfo();
+
+        if ($this->argument('size')) {
+            $this->info("更新対象アカウント数: {$sizeInfo['size']}");
+            $this->info("更新対象範囲開始日: {$sizeInfo['startOfMonthStr']}");
+            $this->info("更新対象範囲終了日: {$sizeInfo['endOfMonthStr']}");
+        } else {
+            // $this->amazonPayUpdateComponent->cv1_to_cv2();
+        }
     }
 }

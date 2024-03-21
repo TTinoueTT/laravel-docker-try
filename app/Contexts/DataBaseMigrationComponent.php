@@ -2,10 +2,8 @@
 
 namespace App\Contexts;
 
+use App\Models\BaseModel;
 use App\Models\Old\OldUser;
-use App\Models\Next\NextUser;
-use App\Models\Old\OldProfile;
-use App\Models\Old\OldUserData;
 use App\Services\BookmarkService;
 use App\Services\HistoryService;
 use App\Services\ProfileService;
@@ -44,7 +42,14 @@ class DataBaseMigrationComponent
         $this->userAnalysisService = $userAnalysisService;
     }
 
-    public function migrate_exec(): void
+    /**
+     * Undocumented function
+     *
+     * @param string $sort
+     * @param  mixed  $userId
+     * @return void
+     */
+    public function migrate_exec($sort = 'desc', $userId = null): void
     {
 
         $k = "\/\\\\";
@@ -63,76 +68,34 @@ class DataBaseMigrationComponent
         $repeatTime = 50;
         $counter = 0;
 
+
         DB::connection('mysql_old')->beginTransaction();
         DB::connection('mysql_new')->beginTransaction();
         DB::connection('mysql_new_payment')->beginTransaction();
 
         try {
-            // OldUser::orderBy('id', 'asc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
-            OldUser::orderBy('id', 'desc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) { // こちらが正しい
-                // 処理回数を追跡するカウンタ
-                foreach ($oldUsers as $oldUser) {
 
-                    // TODO: 練習用に修正
-                    /*
-                    * user_id
-                    * => 3 AmazonPay
-                    * => 5 Docomo
-                    * => 11 Au
-                    * => 190 Softbank
-                    * => 22, 21 Rakuten
-                    */
-                    // if ($oldUser->id != 14407) {
-                    //     continue;
+            if ($userId) {
+                $oldUser = OldUser::find($userId);
+                $this->individual_migrate_process($oldUser);
+            } else {
+                OldUser::orderBy('id', $sort)->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
+                    // OldUser::orderBy('id', 'desc')->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) { // こちらが正しい
+                    // 処理回数を追跡するカウンタ
+                    foreach ($oldUsers as $oldUser) {
+                        $this->individual_migrate_process($oldUser);
+
+                        Log::info("======#{$counter}");
+                        // chunk の処理を止めたい カウンタをインクリメント
+                        // $counter++;
+                    }
+
+                    // 50回処理した後にchunkの処理を停止
+                    // if ($counter == $repeatTime) { // 1回のチャンク処理後に停止したい場合
+                    //     return false; // これにより、chunk処理が停止されます。
                     // }
-
-                    # users レコードの移行(決済継続データの移行も)
-                    Log::info("*************************************************************");
-                    Log::info("Start migrate user ((( id: {$oldUser->id} )))");
-                    Log::info("↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓");
-
-                    if (false !== strpos($oldUser->email, config('app.director_mail_address'))) {
-                        continue;
-                    }
-
-
-                    $nextUser = $this->userService->migrateOldToNew($oldUser);
-                    if ($nextUser == null) {
-                        Log::info("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
-                        Log::info("New user is null, old user ((( id :{$oldUser->id} ))) has invalid parameter");
-                        Log::info("*************************************************************");
-                        continue;
-                    }
-
-                    # profile の移行(旧profile情報の重複も考慮)
-                    $migrateProfileIdMap = $this->profileService->migrateOldToNewWithNew($oldUser, $nextUser);
-
-                    # history の移行(決済注文レコードの移行も)
-                    $this->historyService->migrateOldToNewWithNew($oldUser, $nextUser, $migrateProfileIdMap);
-
-                    # bookmark の移行
-                    $this->bookmarkService->migrateOldToNewWithNew($oldUser, $nextUser);
-
-                    # usersData の移行
-                    $this->userDataService->migrateOldToNewWithNew($oldUser, $nextUser);
-
-                    # userAnalysis の移行
-                    $this->userAnalysisService->migrateOldToNewWithNew($oldUser, $nextUser);
-
-                    Log::info("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
-                    Log::info("old user ((( id :{$oldUser->id} ))) => migrate to new user ((( id: {$nextUser->id} )))");
-                    Log::info("*************************************************************");
-
-                    Log::info("======#{$counter}");
-                    // chunk の処理を止めたい カウンタをインクリメント
-                    // $counter++;
-                }
-
-                // 50回処理した後にchunkの処理を停止
-                // if ($counter == $repeatTime) { // 1回のチャンク処理後に停止したい場合
-                //     return false; // これにより、chunk処理が停止されます。
-                // }
-            });
+                });
+            }
 
             // すべての操作が成功したら、各トランザクションをコミット
             DB::connection('mysql_old')->commit();
@@ -162,5 +125,50 @@ class DataBaseMigrationComponent
         # ① users テーブルの一覧を取得
         # ② users に関与するテーブルごとに新規DBにインサート処理を行う
         # たとえば、
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param BaseModel $oldUser
+     * @return void
+     */
+    private function individual_migrate_process(BaseModel $oldUser): void
+    {
+        # users レコードの移行(決済継続データの移行も)
+        Log::info("*************************************************************");
+        Log::info("Start migrate user ((( id: {$oldUser->id} )))");
+        Log::info("↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓");
+
+        if (false !== strpos($oldUser->email, config('app.director_mail_address'))) {
+            return;
+        }
+
+        $nextUser = $this->userService->migrateOldToNew($oldUser);
+        if ($nextUser == null) {
+            Log::info("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
+            Log::info("New user is null, old user ((( id :{$oldUser->id} ))) has invalid parameter");
+            Log::info("*************************************************************");
+            return;
+        }
+
+        # profile の移行(旧profile情報の重複も考慮)
+        $migrateProfileIdMap = $this->profileService->migrateOldToNewWithNew($oldUser, $nextUser);
+
+        # history の移行(決済注文レコードの移行も)
+        $this->historyService->migrateOldToNewWithNew($oldUser, $nextUser, $migrateProfileIdMap);
+
+        # bookmark の移行
+        $this->bookmarkService->migrateOldToNewWithNew($oldUser, $nextUser);
+
+        # usersData の移行
+        $this->userDataService->migrateOldToNewWithNew($oldUser, $nextUser);
+
+        # userAnalysis の移行
+        $this->userAnalysisService->migrateOldToNewWithNew($oldUser, $nextUser);
+
+        Log::info("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
+        Log::info("old user ((( id :{$oldUser->id} ))) => migrate to new user ((( id: {$nextUser->id} )))");
+        Log::info("*************************************************************");
     }
 }
