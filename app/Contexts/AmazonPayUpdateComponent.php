@@ -98,8 +98,8 @@ class AmazonPayUpdateComponent
      */
     public function sizeInfo($startOfMonthStr, $endOfMonthStr): array
     {
-        $size = NextAmazonPayBillingAgreement::where(NextAmazonPayBillingAgreement::CREATED_AT, '>=', $startOfMonthStr)
-            ->where(NextAmazonPayBillingAgreement::CREATED_AT, '<=', $endOfMonthStr)
+        $size = NextAmazonPayBillingAgreement::where(NextAmazonPayBillingAgreement::UPDATED_AT, '>=', $startOfMonthStr)
+            ->where(NextAmazonPayBillingAgreement::UPDATED_AT, '<=', $endOfMonthStr)
             ->where(NextAmazonPayBillingAgreement::BILLING_AGREEMENT_STATE, '!=', AmazonPayStatus::CLOSED)
             ->count();
 

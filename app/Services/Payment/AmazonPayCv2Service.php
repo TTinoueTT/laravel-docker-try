@@ -49,8 +49,8 @@ class AmazonPayCv2Service
 
         # 注文ID(amazon_order_reference_id) を取得して、その値を charge_id 欄の保存時に使用する
         $nextOrder = NextAmazonPayOrderReference::where(NextAmazonPayOrderReference::BILLING_AGREEMENT_ID, '=', $cv1data->id)
-            ->where(NextAmazonPayOrderReference::CREATED_AT, '>=', $startOfMonthStr)
-            ->where(NextAmazonPayOrderReference::CREATED_AT, '<=', $endOfMonthStr)
+            ->where(NextAmazonPayOrderReference::UPDATED_AT, '>=', $startOfMonthStr)
+            ->where(NextAmazonPayOrderReference::UPDATED_AT, '<=', $endOfMonthStr)
             ->first();
 
         if (!$nextOrder) {
