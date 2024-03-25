@@ -139,6 +139,7 @@ final class AmazonPayService implements IMigrateService
     {
         $oldPurchase = OldAmazonPayOrderReference::where(OldAmazonPayOrderReference::BILLING_AGREEMENT_ID, $oldBillingAgreement->id)
             ->where(OldAmazonPayOrderReference::ORDER_AMOUNT, '330')
+            ->orderBy('id', 'desc')
             ->first();
 
         $new = new NextAmazonPayOrderReference();
