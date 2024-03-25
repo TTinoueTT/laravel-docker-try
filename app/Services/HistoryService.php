@@ -61,9 +61,9 @@ final class HistoryService implements IMigrateService
         }
 
         $histories = $oldUser->histories()
-            ->where('is_free', '!=', 1)
-            ->where('price', '>', 0)
-            ->orderBy('created_at', 'desc')
+            ->where(OldHistory::PURCHASED, '=', 1)
+            ->where(OldHistory::PRICE, '>', 0)
+            ->orderBy(OldHistory::CREATED_AT, 'desc')
             ->get();
 
         /*
@@ -132,9 +132,7 @@ final class HistoryService implements IMigrateService
             }
 
             // 決済注文レコードの移行をこのあたりで行う
-            if ($oldHistory->price > 0) {
-                $this->savePaymentOrder($newHistory, $oldHistory, $nextUser, $oldUser);
-            }
+            $this->savePaymentOrder($newHistory, $oldHistory, $nextUser, $oldUser);
         }
 
         Log::info($histories->isEmpty() ? "Not exist history \/(´；ω；`;)\/" : "history migrate process is finish !!!");

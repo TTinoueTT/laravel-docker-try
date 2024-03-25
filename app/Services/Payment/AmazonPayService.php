@@ -38,7 +38,7 @@ final class AmazonPayService implements IMigrateService
             $lastBillingAgreement = $billingAgreements->last();
             if (config("app.migrate_exec_pattern") == 1) {
                 # 退会ステータス以外のものは skip
-                if ($lastBillingAgreement->status != AmazonPayStatus::CANCELED) {
+                if ($lastBillingAgreement->status != AmazonPayStatus::CLOSED) {
                     return PaymentType::UNKNOWN;
                 }
             } else {

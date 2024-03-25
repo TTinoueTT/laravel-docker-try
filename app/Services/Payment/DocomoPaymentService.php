@@ -13,6 +13,7 @@ use App\Models\Next\Payment\NextDocomoSuid;
 use App\Models\Old\OldUser;
 use App\Models\Old\OldHistory;
 use App\Models\Old\Payment\OldDocomoPurchase;
+use App\Models\Old\Payment\OldDocomoSubscription;
 use App\Services\IMigrateService;
 
 use Illuminate\Support\Facades\Log;
@@ -31,7 +32,11 @@ final class DocomoPaymentService implements IMigrateService
             throw new \InvalidArgumentException('Expected an instance of OldUser');
         }
 
-        $subscriptions = $oldUser->docomoSubscriptions()->get();
+        $subscriptions = $oldUser->docomoSubscriptions()
+            ->where(OldDocomoSubscription::REQUEST_TYPE, '0')
+            ->where(OldDocomoSubscription::STATUS, '3')
+            ->get(); // ここで指定のカラムによる検索条件を増やしたい
+
         if ($subscriptions->isEmpty()) {
             Log::info("Not found docomo payment subscription => process is continue .... ");
             return PaymentType::UNKNOWN;

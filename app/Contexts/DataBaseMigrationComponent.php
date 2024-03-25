@@ -141,6 +141,7 @@ class DataBaseMigrationComponent
         Log::info("Start migrate user ((( id: {$oldUser->id} )))");
         Log::info("↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓");
 
+
         if (false !== strpos($oldUser->email, config('app.director_mail_address'))) {
             return;
         }

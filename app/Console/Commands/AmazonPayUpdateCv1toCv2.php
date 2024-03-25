@@ -10,7 +10,10 @@ class AmazonPayUpdateCv1ToCv2 extends Command
 {
     /**
      * The name and signature of the console command.
-     *
+     * size 更新対象のレコード数を表示
+     * --id billing_agreements テーブルの id を指定して
+     * --start 更新対象期間の開始日 更新対象のレコードの UPDATED_AT( 例. --start="2024-03-01\ 00:00:00")、デフォルトは今月初めの日時
+     * --end 更新対象期間の終了日 更新対象のレコードの UPDATED_AT( 例. --end="2024-03-01\ 00:00:00")、デフォルトは今月末の日時
      * @var string
      */
     protected $signature = 'amazon-pay:update-cv1-to-cv2 {size?} {--id=*} {--start=} {--end=}';
