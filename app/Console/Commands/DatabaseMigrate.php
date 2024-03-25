@@ -9,6 +9,11 @@ class DataBaseMigrate extends Command
 {
     /**
      * The name and signature of the console command.
+     * --execMode
+     * 1 => 退会済みレコード
+     * 2 => 1以外のレコード
+     * ex. sail artisan app:db-migrate --execMode=2 --sort=asc
+     * ex. sail artisan app:db-migrate --execMode=1 --id=4815
      *
      * @var string
      */
