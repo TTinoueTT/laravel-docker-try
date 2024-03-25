@@ -12,11 +12,10 @@ use App\Models\Next\Payment\NextAuSubscription;
 use App\Models\Old\OldUser;
 use App\Models\Old\OldHistory;
 use App\Models\Old\Payment\OldAuPurchase;
-use App\Services\IMigrateService;
 
 use Illuminate\Support\Facades\Log;
 
-final class AuPaymentService implements IMigrateService
+final class AuPaymentService
 {
     private $openIdService;
 
@@ -25,7 +24,7 @@ final class AuPaymentService implements IMigrateService
         $this->openIdService = $openIdService;
     }
 
-    public function migrateOldToNew(BaseModel $oldUser)
+    public function migrateOldToNew(BaseModel $oldUser, int $execMode)
     {
         if (!$oldUser instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
@@ -37,7 +36,7 @@ final class AuPaymentService implements IMigrateService
             return PaymentType::UNKNOWN;
         } else {
             $lastSubscription = $subscriptions->last();
-            if (config("app.migrate_exec_pattern") == 1) {
+            if ($execMode == 1) {
                 # 退会ステータス以外のものは skip
                 if ($lastSubscription->our_status != AuStatus::CANCELED) {
                     return PaymentType::UNKNOWN;

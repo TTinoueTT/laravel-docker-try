@@ -14,11 +14,10 @@ use App\Models\Old\OldUser;
 use App\Models\Old\OldHistory;
 use App\Models\Old\Payment\OldDocomoPurchase;
 use App\Models\Old\Payment\OldDocomoSubscription;
-use App\Services\IMigrateService;
 
 use Illuminate\Support\Facades\Log;
 
-final class DocomoPaymentService implements IMigrateService
+final class DocomoPaymentService
 {
     private $openIdService;
 
@@ -26,7 +25,7 @@ final class DocomoPaymentService implements IMigrateService
     {
         $this->openIdService = $openIdService;
     }
-    public function migrateOldToNew(BaseModel $oldUser)
+    public function migrateOldToNew(BaseModel $oldUser, int $execMode)
     {
         if (!$oldUser instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
@@ -44,7 +43,7 @@ final class DocomoPaymentService implements IMigrateService
             $lastSubscription = $subscriptions->last();
             $nextDocomoSuid = $this->migrateSuid($oldUser);
 
-            if (config("app.migrate_exec_pattern") == 1) {
+            if ($execMode == 1) {
                 # 退会ステータス以外のものは skip
                 if (false === strpos($nextDocomoSuid->open_id, 'set_ban')) {
                     return PaymentType::UNKNOWN;

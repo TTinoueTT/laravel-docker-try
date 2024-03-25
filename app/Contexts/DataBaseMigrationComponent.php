@@ -43,13 +43,14 @@ class DataBaseMigrationComponent
     }
 
     /**
-     * Undocumented function
+     * individual_migrate_process をラッパーして、汎用性を出す
      *
+     * @param integer $execMode
      * @param string $sort
-     * @param  mixed  $userIdList
+     * @param mixed $userIdList
      * @return void
      */
-    public function migrate_exec($sort = 'desc', $userIdList = null): void
+    public function migrate_exec($execMode = 1, $sort = 'desc', $userIdList = null): void
     {
 
         $k = "\/\\\\";
@@ -78,13 +79,13 @@ class DataBaseMigrationComponent
             if ($userIdList) {
                 foreach ($userIdList as $userId) {
                     $oldUser = OldUser::find($userId);
-                    $this->individual_migrate_process($oldUser);
+                    $this->individual_migrate_process($oldUser, $execMode);
                 }
             } else {
-                OldUser::orderBy('id', $sort)->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter) {
+                OldUser::orderBy('id', $sort)->chunk($repeatTime, function (Collection $oldUsers) use ($repeatTime, $counter, $execMode) {
                     // 処理回数を追跡するカウンタ
                     foreach ($oldUsers as $oldUser) {
-                        $this->individual_migrate_process($oldUser);
+                        $this->individual_migrate_process($oldUser, $execMode);
 
                         Log::info("======#{$counter}");
                         // chunk の処理を止めたい カウンタをインクリメント
@@ -114,27 +115,16 @@ class DataBaseMigrationComponent
             // 必要に応じてカスタム例外を投げる
             throw new RuntimeException("トランザクション中にエラーが発生しました。", 0, $e);
         }
-
-
-
-        // DB に接続
-        // $array = OldUser::all();
-        // $array = OldUserData::all();
-        // $userData = OldUserData::find(3);
-        // $array = DB::connection('mysql_old')->select('select * from users_data');
-        // DB::connection('mysql_old')->select('select * from users');
-        # ① users テーブルの一覧を取得
-        # ② users に関与するテーブルごとに新規DBにインサート処理を行う
-        # たとえば、
     }
 
     /**
-     * Undocumented function
+     * 移行作業
      *
      * @param BaseModel $oldUser
+     * @param integer $execMode
      * @return void
      */
-    private function individual_migrate_process(BaseModel $oldUser): void
+    private function individual_migrate_process(BaseModel $oldUser, int $execMode): void
     {
         # users レコードの移行(決済継続データの移行も)
         Log::info("*************************************************************");
@@ -146,7 +136,7 @@ class DataBaseMigrationComponent
             return;
         }
 
-        $nextUser = $this->userService->migrateOldToNew($oldUser);
+        $nextUser = $this->userService->migrateOldToNew($oldUser, $execMode);
         if ($nextUser == null) {
             Log::info("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
             Log::info("New user is null, old user ((( id :{$oldUser->id} ))) has invalid parameter");

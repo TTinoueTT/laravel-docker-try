@@ -12,7 +12,7 @@ class DataBaseMigrate extends Command
      *
      * @var string
      */
-    protected $signature = 'app:db-migrate {--sort=desc} {--id=*}';
+    protected $signature = 'app:db-migrate {--execMode=1} {--sort=desc} {--id=*}';
 
     /**
      * The console command description.
@@ -35,9 +35,10 @@ class DataBaseMigrate extends Command
     public function handle(): void
     {
         $this->info('app:db-migrate');
+        $execMode = $this->option('execMode');
         $sort = $this->option('sort');
         $idList = $this->option('id');
 
-        $this->dbMigrationComponent->migrate_exec($sort, $idList);
+        $this->dbMigrationComponent->migrate_exec($execMode, $sort, $idList);
     }
 }

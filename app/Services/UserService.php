@@ -8,7 +8,6 @@ use App\Enums\PaymentType;
 use App\Models\BaseModel;
 use App\Models\Old\OldUser;
 use App\Models\Next\NextUser;
-use App\Services\IMigrateService;
 use App\Services\Payment\AmazonPayService;
 use App\Services\Payment\AuPaymentService;
 use App\Services\Payment\SoftBankPaymentService;
@@ -17,7 +16,7 @@ use App\Services\Payment\RakutenPayService;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
-final class UserService implements IMigrateService
+final class UserService
 {
     private  $amazonPayService;
     private  $auPaymentService;
@@ -39,13 +38,15 @@ final class UserService implements IMigrateService
         $this->rakutenPayService = $rakutenPayService;
     }
 
+
     /**
-     * Undocumented function
+     * user の移行
      *
      * @param BaseModel $oldUser
+     * @param integer $execMode
      * @return NextUser|null
      */
-    public function migrateOldToNew(BaseModel $oldUser): ?NextUser
+    public function migrateOldToNew(BaseModel $oldUser, int $execMode): ?NextUser
     {
         if (!$oldUser instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
@@ -53,13 +54,13 @@ final class UserService implements IMigrateService
         $nextUser = new NextUser();
 
         $nextUser->interest_type = $this->exchangeIntent($oldUser->intent);
-        $nextUser->payment_type = $this->findAndSavePaymentType($oldUser);
+        $nextUser->payment_type = $this->findAndSavePaymentType($oldUser, $execMode);
 
         if ($nextUser->payment_type == PaymentType::UNKNOWN) {
             return null;
         }
 
-        if (config("app.migrate_exec_pattern") == 1) {
+        if ($execMode == 1) {
             $externalId = $this->setExternalId($nextUser, $oldUser, true);
         } else {
             $externalId = $this->setExternalId($nextUser, $oldUser, false);
@@ -184,10 +185,10 @@ final class UserService implements IMigrateService
      * OldUser に payment_type が存在しないため、old の 決済情報を全部照合して、
      * データ移行を行い、payment_type を取得し、NextUser の更新を行う
      * @param OldUser $oldUser
-     * @param NextUser $NextUser
-     * @return int
+     * @param integer $execMode
+     * @return integer
      */
-    private function findAndSavePaymentType(OldUser $oldUser): int
+    private function findAndSavePaymentType(OldUser $oldUser, int $execMode): int
     {
         Log::info("============================================================");
         Log::info("************ payment subscription data process ************");
@@ -195,23 +196,23 @@ final class UserService implements IMigrateService
         $paymentType = PaymentType::UNKNOWN;
         // SOFTBANK
         if ($paymentType == PaymentType::UNKNOWN) {
-            $paymentType = $this->softbankPaymentService->migrateOldToNew($oldUser);
+            $paymentType = $this->softbankPaymentService->migrateOldToNew($oldUser, $execMode);
         }
         // AU
         if ($paymentType == PaymentType::UNKNOWN) {
-            $paymentType = $this->auPaymentService->migrateOldToNew($oldUser);
+            $paymentType = $this->auPaymentService->migrateOldToNew($oldUser, $execMode);
         }
         // DOCOMO
         if ($paymentType == PaymentType::UNKNOWN) {
-            $paymentType = $this->docomoPaymentService->migrateOldToNew($oldUser);
+            $paymentType = $this->docomoPaymentService->migrateOldToNew($oldUser, $execMode);
         }
         // RAKUTEN
         if ($paymentType == PaymentType::UNKNOWN) {
-            $paymentType = $this->rakutenPayService->migrateOldToNew($oldUser);
+            $paymentType = $this->rakutenPayService->migrateOldToNew($oldUser, $execMode);
         }
         // AMAZON
         if ($paymentType == PaymentType::UNKNOWN) {
-            $paymentType = $this->amazonPayService->migrateOldToNew($oldUser);
+            $paymentType = $this->amazonPayService->migrateOldToNew($oldUser, $execMode);
         }
 
         return $paymentType;

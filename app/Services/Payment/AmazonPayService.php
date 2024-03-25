@@ -12,10 +12,9 @@ use App\Models\Old\OldUser;
 use App\Models\Old\OldHistory;
 use App\Models\Old\Payment\OldAmazonPayBillingAgreement;
 use App\Models\Old\Payment\OldAmazonPayOrderReference;
-use App\Services\IMigrateService;
 use Illuminate\Support\Facades\Log;
 
-final class AmazonPayService implements IMigrateService
+final class AmazonPayService
 {
     private $nextAmazonPayBillingAgreement;
 
@@ -23,7 +22,7 @@ final class AmazonPayService implements IMigrateService
     {
         $this->nextAmazonPayBillingAgreement = $nextAmazonPayBillingAgreement;
     }
-    public function migrateOldToNew(BaseModel $oldUser): int
+    public function migrateOldToNew(BaseModel $oldUser, int $execMode): int
     {
         if (!$oldUser instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
@@ -36,7 +35,7 @@ final class AmazonPayService implements IMigrateService
             return PaymentType::UNKNOWN;
         } else {
             $lastBillingAgreement = $billingAgreements->last();
-            if (config("app.migrate_exec_pattern") == 1) {
+            if ($execMode == 1) {
                 # 退会ステータス以外のものは skip
                 if ($lastBillingAgreement->status != AmazonPayStatus::CLOSED) {
                     return PaymentType::UNKNOWN;

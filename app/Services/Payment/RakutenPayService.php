@@ -11,13 +11,12 @@ use App\Models\Next\Payment\NextRakutenSubscription;
 use App\Models\Old\OldUser;
 use App\Models\Old\OldHistory;
 use App\Models\Old\Payment\OldRakutenPurchase;
-use App\Services\IMigrateService;
 
 use Illuminate\Support\Facades\Log;
 
-final class RakutenPayService implements IMigrateService
+final class RakutenPayService
 {
-    public function migrateOldToNew(BaseModel $oldUser)
+    public function migrateOldToNew(BaseModel $oldUser, int $execMode)
     {
         if (!$oldUser instanceof OldUser) {
             throw new \InvalidArgumentException('Expected an instance of OldUser');
@@ -31,7 +30,7 @@ final class RakutenPayService implements IMigrateService
             $lastSubscription = $subscriptions->last();
 
             # MIGRATE_EXEC_PATTERN によって処理の中断を行う
-            if (config("app.migrate_exec_pattern") == 1) {
+            if ($execMode == 1) {
                 # 退会ステータス以外のものは skip
                 if ($lastSubscription->status != RakutenPayStatus::CANCELED) {
                     return PaymentType::UNKNOWN;
