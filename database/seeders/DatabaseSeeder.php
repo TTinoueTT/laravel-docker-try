@@ -14,14 +14,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-
         // CategoriesTableSeeder ファイルをシーディングの対象にする
-        $this->call(CategoriesTableSeeder::class);
+        // $this->call(CategoriesTableSeeder::class);
+
+        // AuthorTableSeeder ファイルをシーディングの対象にする
+        // $this->call(AuthorsTableSeeder::class);
+
+        $this->call([
+            AuthorsTableSeeder::class,
+            BooksTableSeeder::class,
+        ]);
     }
 }
