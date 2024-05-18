@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\Book;
 use App\Models\Category;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
+use App\Http\Requests\BookPostRequest;
 
 class BookController extends Controller
 {
@@ -39,7 +39,7 @@ class BookController extends Controller
         ]);
     }
 
-    public function store(Request $request): Book
+    public function store(BookPostRequest $request): Book
     {
         // 書籍データ登録用のオブジェクトを作成する
         $book = new Book();
