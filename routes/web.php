@@ -24,9 +24,11 @@ Route::get('messages', [MessageController::class, 'index']);
 Route::post('messages', [MessageController::class, 'store']);
 
 Route::prefix('admin/books')
-    ->name('book.')
+    ->name('admin.book.')
     ->controller(BookController::class)
     ->group(function () {
         Route::get('', 'index')->name('index');
         Route::get('{id}', 'show')->whereNumber('id')->name('show');
+        Route::get('create', 'create')->name('create');
+        Route::post('', 'store')->name('store');
     });
