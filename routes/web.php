@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Admin\BookController;
+use App\Http\Controllers\HtmlTryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,5 +31,6 @@ Route::prefix('admin/books')
         Route::get('', 'index')->name('index');
         Route::get('{book}', 'show')->whereNumber('book')->name('show');
         Route::get('create', 'create')->name('create');
+        Route::get('{book}/edit', 'edit')->whereNumber('book')->name('edit');
         Route::post('', 'store')->name('store');
     });
