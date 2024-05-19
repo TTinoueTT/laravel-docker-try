@@ -9,10 +9,11 @@ use App\Models\Category;
 use Illuminate\View\View;
 use App\Http\Requests\BookPostRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 
 class BookController extends Controller
 {
-    public function index(): View
+    public function index(): Response
     {
         // 書籍一覧を取得
         $books = Book::with('category')
@@ -20,7 +21,10 @@ class BookController extends Controller
             ->orderBy('title')
             ->get();
 
-        return view('admin/book/index', ['books' => $books]);
+        return response()
+            ->view('admin/book/index', ['books' => $books])
+            ->header('Content-Type', 'text/html')
+            ->header('Content-Encording', 'UTF-8');
     }
 
     public function show(string $id): Book
