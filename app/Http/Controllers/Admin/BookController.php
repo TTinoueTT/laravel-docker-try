@@ -8,6 +8,7 @@ use App\Models\Book;
 use App\Models\Category;
 use Illuminate\View\View;
 use App\Http\Requests\BookPostRequest;
+use App\Models\Author;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 
@@ -38,10 +39,11 @@ class BookController extends Controller
         // View にカテゴリー一覧を表示するために全件取得
         $categories = Category::all();
 
+        // 著者一覧を表示するために全件取得
+        $authors = Author::all();
+
         // View オブジェクトを返す、'admin/book/create' の代わりに、admin.book.create とすることもできる
-        return view('admin/book/create', [
-            'categories' => $categories
-        ]);
+        return view('admin/book/create', compact('categories', 'authors'));
     }
 
     public function store(BookPostRequest $request): RedirectResponse
