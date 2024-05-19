@@ -189,6 +189,8 @@ return [
         'category_id' => 'カテゴリ',
         'title' => 'タイトル',
         'price' => '価格',
+        'author_ids' => '著者',
+        'author_ids.*' => '著者',
     ],
 
 ];

@@ -11,6 +11,7 @@ use App\Http\Requests\BookPostRequest;
 use App\Models\Author;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
 {
@@ -56,8 +57,14 @@ class BookController extends Controller
         $book->title = $request->title;
         $book->price = $request->price;
 
-        // 保存
-        $book->save();
+        DB::transaction(function () use ($book, $request) {
+            // 保存
+            $book->save();
+
+            // 著者書籍テーブルを登録
+            $book->authors()->attach($request->author_ids);
+        });
+
 
         // 登録完了後 book, index にリダイレクトする
         return redirect(route('admin.book.index'))
