@@ -8,15 +8,15 @@ use App\Models\Book;
 use App\Models\Category;
 use Illuminate\View\View;
 use App\Http\Requests\BookPostRequest;
+use Illuminate\Http\RedirectResponse;
 
 class BookController extends Controller
 {
-    public function index(): Collection
+    public function index(): View
     {
         // 書籍一覧を取得
         $books = Book::all();
-        // 書籍一覧をレスポンス
-        return $books;
+        return view('admin/book/index', ['books' => $books]);
     }
 
     public function show(string $id): Book
@@ -39,7 +39,7 @@ class BookController extends Controller
         ]);
     }
 
-    public function store(BookPostRequest $request): Book
+    public function store(BookPostRequest $request): RedirectResponse
     {
         // 書籍データ登録用のオブジェクトを作成する
         $book = new Book();
@@ -52,7 +52,8 @@ class BookController extends Controller
         // 保存
         $book->save();
 
-        // 保存した書籍情報をレスポンスとして返す
-        return $book;
+        // 登録完了後 book, index にリダイレクトする
+        return redirect(route('book.index'))
+            ->with('message', $book->title . 'を追加しました。');
     }
 }
