@@ -16,21 +16,21 @@
                 {{ session('message') }}
             </div>
         @endif
-        <a href="{{ route('book.create') }}">追加</a>
+        <a href="{{ route('admin.book.create') }}">追加</a>
         <table border="1">
             <tr>
                 <th>カテゴリ</th>
                 <th>書籍名</th>
                 <th>価格</th>
             </tr>
+            @foreach ($books as $book)
+                <tr>
+                    <td>{{ $book->category->title }}</td>
+                    <td>{{ $book->title }}</td>
+                    <td>{{ $book->price }}</td>
+                </tr>
+            @endforeach
         </table>
-        @foreach ($books as $book)
-            <tr>
-                <td>{{ $book->category->title }}</td>
-                <td>{{ $book->title }}</td>
-                <td>{{ $book->price }}</td>
-            </tr>
-        @endforeach
 
     </main>
 </body>

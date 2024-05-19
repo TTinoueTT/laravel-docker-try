@@ -15,7 +15,11 @@ class BookController extends Controller
     public function index(): View
     {
         // 書籍一覧を取得
-        $books = Book::all();
+        $books = Book::with('category')
+            ->orderBy('category_id')
+            ->orderBy('title')
+            ->get();
+
         return view('admin/book/index', ['books' => $books]);
     }
 
@@ -53,7 +57,7 @@ class BookController extends Controller
         $book->save();
 
         // 登録完了後 book, index にリダイレクトする
-        return redirect(route('book.index'))
+        return redirect(route('admin.book.index'))
             ->with('message', $book->title . 'を追加しました。');
     }
 }
