@@ -9,15 +9,20 @@ use Illuminate\View\Component;
 
 class ErrorMessages extends Component
 {
-    // 定義したメンバ変数はビューから参照可能(publicである必要がある)
-    public ViewErrorBag $errors;
     /**
      * Create a new component instance.
      */
-    public function __construct(ViewErrorBag $errors)
+    public function __construct(
+        public ViewErrorBag $errors
+    ) {
+    }
+
+    /**
+     * エラーが2件以上あるかどうかを返す
+     */
+    public function has2MoreErrors(): bool
     {
-        // メンバ変数の値はコンストラクタ引数で外から受け取る
-        $this->errors = $errors;
+        return count($this->errors) > 2;
     }
 
     /**

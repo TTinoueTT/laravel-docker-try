@@ -13,13 +13,7 @@
         <h1>書籍登録</h1>
         {{-- リダイレクト時のエラー文 --}}
         @if ($errors->any())
-            <div style="color:red">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
+            <x-error-messages :$errors />
         @endif
         <form action="{{ route('admin.book.store') }}" method="post">
             @csrf
