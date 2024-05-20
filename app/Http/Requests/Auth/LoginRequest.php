@@ -41,14 +41,31 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        /*
+         * 認証処理
+         * 入力された email と password をもとに認証を行う
+         * 認証成功時は true、認証失敗時は false を返す
+         * $this->boolean('remember') は、「Remember me」にチェックしたかどうか
+         */
+        if (!Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+
+            // ログイン失敗時の処理↓
+
+            // 連続ログイン失敗の制御(複数回失敗するとしばらくログインさせない)
             RateLimiter::hit($this->throttleKey());
 
+            /*
+             * ValidationException がスローされると、
+             * バリデーション失敗として処理される。
+             * メッセージは lang/en/auth.php の failed 属性を参照しているので、
+             * 日本語に変更する場合は、lang/ja/auth.php を作成する
+             */
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
         }
 
+        // ログイン失敗回数をクリア
         RateLimiter::clear($this->throttleKey());
     }
 
@@ -59,7 +76,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -80,6 +97,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }
