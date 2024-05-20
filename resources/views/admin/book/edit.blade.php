@@ -8,7 +8,7 @@
             <x-error-messages :$errors />
         </x-alert>
     @endif
-    <form action="" method="post">
+    <form action="{{ route('admin.book.update', $book) }}" method="post">
         @csrf
         @method('PUT')
         <div>

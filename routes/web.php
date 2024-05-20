@@ -31,6 +31,7 @@ Route::prefix('admin/books')
         Route::get('', 'index')->name('index');
         Route::get('{book}', 'show')->whereNumber('book')->name('show');
         Route::get('create', 'create')->name('create');
-        Route::get('{book}/edit', 'edit')->whereNumber('book')->name('edit');
         Route::post('', 'store')->name('store');
+        Route::get('{book}/edit', 'edit')->whereNumber('book')->name('edit');
+        Route::put('{book}', 'update')->whereNumber('book')->name('update');
     });
