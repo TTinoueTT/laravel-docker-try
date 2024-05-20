@@ -15,7 +15,7 @@
     @endif
     <form action="{{ route('admin.book.store') }}" method="post">
         @csrf
-        <div>
+        {{-- <div>
             <label for="category">カテゴリ</label>
             <select name="category_id" id="category">
                 @foreach ($categories as $category)
@@ -44,7 +44,8 @@
                     </li>
                 @endforeach
             </ul>
-        </div>
+        </div> --}}
+        <x-book-form :$categories :$authors />
         <input type="submit" value="送信">
     </form>
 </x-layouts.book-manager>
