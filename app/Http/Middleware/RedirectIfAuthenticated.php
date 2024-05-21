@@ -10,6 +10,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfAuthenticated
 {
+    private const HOMES = [
+        'admin' => RouteServiceProvider::ADMIN_HOME,
+        '' => RouteServiceProvider::HOME
+    ];
+
     /**
      * Handle an incoming request.
      *
@@ -21,7 +26,7 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                return redirect(self::HOMES[$guard]);
             }
         }
 

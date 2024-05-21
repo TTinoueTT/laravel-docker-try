@@ -64,13 +64,14 @@ Route::prefix('admin')->group(function () {
     Route::name('admin.')
         ->controller(AdminAuth::class)
         ->group(function () {
-            Route::get('login', 'create')->name('create');
-            Route::post('login', 'store')->name('store');
-            Route::post('logout', 'destroy')->name('destroy');
+            Route::get('login', 'create')->name('create')->middleware('guest:admin');
+            Route::post('login', 'store')->name('store')->middleware('guest:admin');
+            Route::post('logout', 'destroy')->name('destroy')->middleware('auth:admin');
         });
 
     Route::prefix('books')
         ->name('admin.book.')
+        ->middleware('auth:admin')
         ->controller(BookController::class)
         ->group(function () {
             Route::get('', 'index')->name('index');
