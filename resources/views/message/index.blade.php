@@ -16,7 +16,11 @@
         </form>
         <ul>
             @foreach ($messages as $message)
-                <li>{{ $message->body }}</li>
+                <li>
+                    {{ $message->body }}/
+                    <a href="{{ route('messages.destroy', $message) }}">削除</a>
+                    {{-- <a href="/messages/{{ $message->id }}/delete">削除</a> --}}
+                </li>
                 {{-- <li>{!! $message->body !!}</li> 脆弱性あり --}}
                 {{-- <li><a href="{{ $message->body }}">{{ $message->body }}</a></li>  // 脆弱性あり --}}
             @endforeach
