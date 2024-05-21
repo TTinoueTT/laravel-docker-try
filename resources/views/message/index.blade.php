@@ -17,8 +17,13 @@
         <ul>
             @foreach ($messages as $message)
                 <li>
-                    {{ $message->body }}/
-                    <a href="{{ route('messages.destroy', $message) }}">削除</a>
+                    <form action="{{ route('messages.destroy', $message) }}" method="post">
+                        {{ $message->body }}/
+                        @csrf
+                        @method('DELETE')
+                        <input type="submit" value="削除">
+                    </form>
+                    {{-- <a href="{{ route('messages.destroy', $message) }}">削除</a> --}}
                     {{-- <a href="/messages/{{ $message->id }}/delete">削除</a> --}}
                 </li>
                 {{-- <li>{!! $message->body !!}</li> 脆弱性あり --}}
