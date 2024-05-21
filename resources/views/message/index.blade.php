@@ -17,6 +17,8 @@
         <ul>
             @foreach ($messages as $message)
                 <li>{{ $message->body }}</li>
+                {{-- <li>{!! $message->body !!}</li> 脆弱性あり --}}
+                {{-- <li><a href="{{ $message->body }}">{{ $message->body }}</a></li>  // 脆弱性あり --}}
             @endforeach
         </ul>
     </main>
