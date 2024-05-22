@@ -14,9 +14,13 @@
                     route関数に $book を渡すと、ID を取り出してパラメータとしてくれる
                     生成される URL は /admin/books/{id} とこれまで通り
                 --}}
-                <a href="{{ route('admin.book.show', $book) }}">
+                @can('example-com-user')
+                    <a href="{{ route('admin.book.show', $book) }}">
+                        {{ $book->title }}
+                    </a>
+                @else
                     {{ $book->title }}
-                </a>
+                @endcan
             </td>
             <td>{{ $book->price }}</td>
             <td>

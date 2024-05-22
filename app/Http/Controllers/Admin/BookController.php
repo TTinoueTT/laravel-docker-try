@@ -37,6 +37,9 @@ class BookController extends Controller
 
     public function show(Book $book): View
     {
+        // example.com ユーザのみ許可
+        $this->authorize('example-com-user');
+
         // 取得した書籍をレスポンスとして返す
         return view('admin/book/show', compact('book'));
     }
