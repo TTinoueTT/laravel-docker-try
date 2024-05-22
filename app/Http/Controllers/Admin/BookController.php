@@ -39,8 +39,6 @@ class BookController extends Controller
 
     public function create(): View
     {
-        // BookPolicy の create メソッドによる認可
-        $this->authorize('create', Book::class);
         // View にカテゴリー一覧を表示するために全件取得
         $categories = Category::all();
 
@@ -53,9 +51,6 @@ class BookController extends Controller
 
     public function store(BookPostRequest $request): RedirectResponse
     {
-        // BookPolicy の create メソッドによる認可
-        $this->authorize('create', Book::class);
-
         // 書籍データ登録用のオブジェクトを作成する
         $book = new Book();
 
@@ -81,13 +76,6 @@ class BookController extends Controller
 
     public function edit(Book $book): View
     {
-        // 作成者以外はアクセス不可
-        // if (Auth::user()->cannot('update', $book)) {
-        //     abort(403);
-        // }
-        // 403エラーを返すことが確定しているなら authorize を利用することもできる
-        $this->authorize('update', $book);
-
         // カテゴリ一覧を表示するために全件取得
         $categories = Category::all();
 
@@ -102,9 +90,6 @@ class BookController extends Controller
 
     public function update(BookPutRequest $request, Book $book): RedirectResponse
     {
-        // 作成者以外はアクセス不可
-        $this->authorize('update', $book);
-
         // リクエストオブジェクトからパラメータを取得する
         $book->category_id = $request->category_id;
         $book->title = $request->title;
@@ -124,9 +109,6 @@ class BookController extends Controller
 
     public function destroy(Book $book): RedirectResponse
     {
-        // 作成者以外はアクセス不可
-        $this->authorize('delete', $book);
-
         $book->delete();
 
         return redirect(route('admin.book.index'))
