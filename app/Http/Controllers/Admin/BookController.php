@@ -13,6 +13,7 @@ use App\Models\Author;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
@@ -57,6 +58,7 @@ class BookController extends Controller
         $book->category_id = $request->category_id;
         $book->title = $request->title;
         $book->price = $request->price;
+        $book->admin_id = Auth::id();
 
         DB::transaction(function () use ($book, $request) {
             // 保存
@@ -74,6 +76,11 @@ class BookController extends Controller
 
     public function edit(Book $book): View
     {
+        // 作成者以外はアクセス不可
+        if (Auth::user()->cannot('update', $book)) {
+            abort(403);
+        }
+
         // カテゴリ一覧を表示するために全件取得
         $categories = Category::all();
 

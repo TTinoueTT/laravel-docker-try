@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Category;
+use App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,6 +22,7 @@ class BookFactory extends Factory
             'title' => fake()->realText(15),
             'price' => fake()->numberBetween(500, 10000),
             'category_id' => Category::factory(),
+            'admin_id' => Admin::factory(),
         ];
     }
 }
