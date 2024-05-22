@@ -36,4 +36,31 @@ class AuthenticationTest extends TestCase
         // 3. 認証されている
         $this->assertAuthenticatedAs($admin, 'admin');
     }
+
+    /** @test */
+    public function ログイン失敗(): void
+    {
+        // 事前情報としてログイン用ユーザ作成
+        $admin = Admin::factory()->create([
+            'login_id' => 'hoge',
+            'password' => \Hash::make('hogehoge'),
+        ]);
+
+        // ID が一致しない場合
+        $this->from(route('admin.store'))
+            ->post(route('admin.store'), [
+                'login_id' => 'fuga',
+                'password' => 'hogehoge',
+            ])->assertRedirect(route('admin.create'));
+
+        // パスワードが一致しない場合
+        $this->from(route('admin.store'))
+            ->post(route('admin.store'), [
+                'login_id' => 'hoge',
+                'password' => 'fugafuga',
+            ])->assertRedirect(route('admin.create'));
+
+        // 認証されていない
+        $this->assertGuest('admin');
+    }
 }
