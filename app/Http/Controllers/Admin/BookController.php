@@ -39,6 +39,8 @@ class BookController extends Controller
 
     public function create(): View
     {
+        // BookPolicy の create メソッドによる認可
+        $this->authorize('create', Book::class);
         // View にカテゴリー一覧を表示するために全件取得
         $categories = Category::all();
 
@@ -51,6 +53,9 @@ class BookController extends Controller
 
     public function store(BookPostRequest $request): RedirectResponse
     {
+        // BookPolicy の create メソッドによる認可
+        $this->authorize('create', Book::class);
+
         // 書籍データ登録用のオブジェクトを作成する
         $book = new Book();
 

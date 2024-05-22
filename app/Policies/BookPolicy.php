@@ -16,6 +16,12 @@ class BookPolicy
         //
     }
 
+    public function create(Admin $admin): bool
+    {
+        return substr($admin->login_id, -11) === 'example.com';
+        // return true;
+    }
+
     public function update(Admin $admin, Book $book): bool
     {
         return $admin->id === $book->admin_id;
