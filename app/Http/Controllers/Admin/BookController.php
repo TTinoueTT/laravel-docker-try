@@ -77,9 +77,11 @@ class BookController extends Controller
     public function edit(Book $book): View
     {
         // 作成者以外はアクセス不可
-        if (Auth::user()->cannot('update', $book)) {
-            abort(403);
-        }
+        // if (Auth::user()->cannot('update', $book)) {
+        //     abort(403);
+        // }
+        // 403エラーを返すことが確定しているなら authorize を利用することもできる
+        $this->authorize('update', $book);
 
         // カテゴリ一覧を表示するために全件取得
         $categories = Category::all();

@@ -26,7 +26,7 @@ return new class extends Migration
              * dropForeign は外部キー制約の解除を行う
              * フィールドの削除を行う前に制約の解除を先に行う必要がある
              */
-            $table->dropForeign('book_admin_id_foreign');
+            $table->dropForeign('books_admin_id_foreign');
             $table->dropColumn('admin_id');
         });
     }
