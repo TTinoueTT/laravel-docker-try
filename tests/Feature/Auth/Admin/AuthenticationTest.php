@@ -81,4 +81,36 @@ class AuthenticationTest extends TestCase
         // 認証されていない
         $this->assertGuest('admin');
     }
+
+    /** @test */
+    public function バリデーション(): void
+    {
+        $url = route('admin.store');
+
+        // リダイレクト
+        $this->from(route('admin.store'))
+            ->post(route('admin.store'), [
+                'login_id' => '',
+            ])->assertRedirect(route('admin.create'));
+
+        // ID未入力
+        $this->post($url, [
+            'login_id' => '',
+        ])->assertInvalid(['login_id' => 'login id は必須']);
+
+        // ID入力
+        $this->post($url, [
+            'login_id' => 'a',
+        ])->assertValid('login_id');
+
+        // パスワード未入力
+        $this->post($url, [
+            'password' => '',
+        ])->assertInvalid(['password' => 'password は必須']);
+
+        // パスワード入力
+        $this->post($url, [
+            'password' => 'a',
+        ])->assertValid('password');
+    }
 }
