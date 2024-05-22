@@ -51,14 +51,18 @@ class AuthenticationTest extends TestCase
             ->post(route('admin.store'), [
                 'login_id' => 'fuga',
                 'password' => 'hogehoge',
-            ])->assertRedirect(route('admin.create'));
+            ])
+            ->assertRedirect(route('admin.create'))
+            ->assertInvalid(['login_id' => 'These credentials do not match']);
 
         // パスワードが一致しない場合
         $this->from(route('admin.store'))
             ->post(route('admin.store'), [
                 'login_id' => 'hoge',
                 'password' => 'fugafuga',
-            ])->assertRedirect(route('admin.create'));
+            ])
+            ->assertRedirect(route('admin.create'))
+            ->assertInvalid(['login_id' => 'These credentials do not']);
 
         // 認証されていない
         $this->assertGuest('admin');
