@@ -20,4 +20,9 @@ class BookPolicy
     {
         return $admin->id === $book->admin_id;
     }
+
+    public function delete(Admin $admin, Book $book): bool
+    {
+        return $admin->id === $book->admin_id;
+    }
 }

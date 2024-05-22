@@ -97,6 +97,9 @@ class BookController extends Controller
 
     public function update(BookPutRequest $request, Book $book): RedirectResponse
     {
+        // 作成者以外はアクセス不可
+        $this->authorize('update', $book);
+
         // リクエストオブジェクトからパラメータを取得する
         $book->category_id = $request->category_id;
         $book->title = $request->title;
@@ -116,6 +119,9 @@ class BookController extends Controller
 
     public function destroy(Book $book): RedirectResponse
     {
+        // 作成者以外はアクセス不可
+        $this->authorize('delete', $book);
+
         $book->delete();
 
         return redirect(route('admin.book.index'))
