@@ -12,6 +12,8 @@
             {{ session('message') }}
         </x-alert>
     @endif
-    <a href="{{ route('admin.book.create') }}">追加</a>
+    @can('create', App\Models\Book::class)
+        <a href="{{ route('admin.book.create') }}">追加</a>
+    @endcan
     <x-book-table :$books />
 </x-layouts.book-manager>

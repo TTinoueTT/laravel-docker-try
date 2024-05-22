@@ -20,16 +20,24 @@
             </td>
             <td>{{ $book->price }}</td>
             <td>
-                <a href="{{ route('admin.book.edit', $book) }}">
-                    <button>更新</button>
-                </a>
+                @can('update', $book)
+                    <a href="{{ route('admin.book.edit', $book) }}">
+                        <button>更新</button>
+                    </a>
+                @else
+                    <button disabled>更新</button>
+                @endcan
             </td>
             <td>
-                <form action="{{ route('admin.book.destroy', $book) }}" method="post">
-                    @csrf
-                    @method('DELETE')
-                    <input type="submit" value="削除">
-                </form>
+                @cannot('update', $book)
+                    <button disabled>削除</button>
+                @else
+                    <form action="{{ route('admin.book.destroy', $book) }}" method="post">
+                        @csrf
+                        @method('DELETE')
+                        <input type="submit" value="削除">
+                    </form>
+                @endcannot
             </td>
         </tr>
     @endforeach
