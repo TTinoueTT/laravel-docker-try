@@ -11,6 +11,20 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
+    private $admin;
+
+    public function setUp(): void
+    {
+        // 親のsetUpメソッド呼び出し
+        parent::setUp();
+
+        // ログインテスト用ユーザ作成
+        $this->admin = Admin::factory()->create([
+            'login_id' => 'hoge',
+            'password' => \Hash::make('hogehoge'),
+        ]);
+    }
+
     /** @test */
     public function ログイン画面の表示(): void
     {
@@ -21,11 +35,11 @@ class AuthenticationTest extends TestCase
     /** @test */
     public function ログイン成功(): void
     {
-        // 1. ログイン用ユーザ作成
-        $admin = Admin::factory()->create([
-            'login_id' => 'hoge',
-            'password' => \Hash::make('hogehoge'),
-        ]);
+        // // 1. ログイン用ユーザ作成
+        // $admin = Admin::factory()->create([
+        //     'login_id' => 'hoge',
+        //     'password' => \Hash::make('hogehoge'),
+        // ]);
 
         // 2. ログイン成功すると書籍一覧にリダイレクトする
         $this->post(route('admin.store'), [
@@ -34,17 +48,17 @@ class AuthenticationTest extends TestCase
         ])->assertRedirect(route('admin.book.index'));
 
         // 3. 認証されている
-        $this->assertAuthenticatedAs($admin, 'admin');
+        $this->assertAuthenticatedAs($this->admin, 'admin');
     }
 
     /** @test */
     public function ログイン失敗(): void
     {
-        // 事前情報としてログイン用ユーザ作成
-        $admin = Admin::factory()->create([
-            'login_id' => 'hoge',
-            'password' => \Hash::make('hogehoge'),
-        ]);
+        // // 事前情報としてログイン用ユーザ作成
+        // $admin = Admin::factory()->create([
+        //     'login_id' => 'hoge',
+        //     'password' => \Hash::make('hogehoge'),
+        // ]);
 
         // ID が一致しない場合
         $this->from(route('admin.store'))
