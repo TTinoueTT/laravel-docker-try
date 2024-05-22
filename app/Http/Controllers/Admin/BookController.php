@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
+    public function __construct()
+    {
+        $this->authorizeResource(Book::class, 'book');
+    }
     public function index(): Response
     {
         // 書籍一覧を取得

@@ -35,17 +35,3 @@ require __DIR__ . '/auth.php';
 Route::get('messages', [MessageController::class, 'index']);
 Route::post('messages', [MessageController::class, 'store']);
 Route::delete('messages/{message}/delete', [MessageController::class, 'destroy'])->name('messages.destroy');
-// Route::get('messages/{id}/delete', [MessageController::class, 'destroy']);
-
-// Route::prefix('admin/books')
-//     ->name('admin.book.')
-//     ->controller(BookController::class)
-//     ->group(function () {
-//         Route::get('', 'index')->name('index');
-//         Route::get('{book}', 'show')->whereNumber('book')->name('show');
-//         Route::get('create', 'create')->name('create');
-//         Route::post('', 'store')->name('store');
-//         Route::get('{book}/edit', 'edit')->whereNumber('book')->name('edit');
-//         Route::put('{book}', 'update')->whereNumber('book')->name('update');
-//         Route::delete('{book}', 'destroy')->whereNumber('book')->name('destroy');
-//     });

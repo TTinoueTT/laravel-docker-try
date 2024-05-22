@@ -16,6 +16,16 @@ class BookPolicy
         //
     }
 
+    public function viewAny(Admin $admin): bool
+    {
+        return true;
+    }
+
+    public function view(Admin $admin, Book $book): bool
+    {
+        return true;
+    }
+
     public function create(Admin $admin): bool
     {
         return substr($admin->login_id, -11) === 'example.com';
