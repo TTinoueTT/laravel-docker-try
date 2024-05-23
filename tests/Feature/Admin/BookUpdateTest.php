@@ -108,4 +108,78 @@ class BookUpdateTest extends TestCase
 
         // 「書籍の作成者の場合、更新可」のテストは更新テストで行う
     }
+
+    /** @test */
+    public function バリデーション(): void
+    {
+        // 作成者で認証
+        $this->actingAs($this->admin, 'admin');
+
+        $url = route('admin.book.update', $this->book);
+
+        // リダイレクト先の確認
+        $this->from(route('admin.book.edit', $this->book))
+            ->put($url, ['category_id' => ''])
+            ->assertRedirect(route('admin.book.edit', $this->book));
+
+        // 以降バリデーションとメッセージの確認
+        // カテゴリIDが空
+        $this->put($url, ['category_id' => ''])
+            ->assertInvalid(['category_id' => 'カテゴリ は必須']);
+
+        // カテゴリIDが0(カテゴリテーブルに存在しない)
+        $this->put($url, ['category_id' => '0'])
+            ->assertInvalid(['category_id' => '正しい カテゴリ']);
+
+        // カテゴリ ID が3つ目のカテゴリのID(正常)
+        $this->put($url, ['category_id' => $this->categories[2]->id])
+            ->assertValid('category_id');
+
+        // タイトルが空
+        $this->put($url, ['title' => ''])
+            ->assertInvalid(['title' => 'タイトル は必須入力']);
+
+        // タイトルが1文字(正常)
+        $this->put($url, ['title' => 'a'])->assertValid('title');
+
+        // タイトルが100文字(正常)
+        // str_repeat('a', 100) は 'a' を 100桁並べた文字列を返す
+        $this->put($url, ['title' => str_repeat('a', 100)])
+            ->assertValid('title');
+
+        // タイトルが 101 文字
+        $this->put($url, ['title' => str_repeat('a', 101)])
+            ->assertInvalid(['title' => 'タイトル は 100 文字以内']);
+
+        // 価格が数値ではない
+        $this->put($url, ['price' => 'a'])
+            ->assertInvalid(['price' => '価格 は数値']);
+
+        // 価格が 0
+        $this->put($url, ['price' => '0'])
+            ->assertInvalid(['price' => '価格 は 1 以上']);
+
+        // 価格が 1 (正常)
+        $this->put($url, ['price' => '1'])->assertValid('price');
+
+        // 価格が 999999 (正常)
+        $this->put($url, ['price' => '999999'])->assertValid('price');
+
+        // 価格が 1000000
+        $this->put($url, ['price' => '1000000'])
+            ->assertInvalid(['price' => '価格 は 999999 以下']);
+
+        // 著者IDは複数なので配列形式で渡す
+        // 著者IDが空
+        $this->put($url, ['author_ids' => []])
+            ->assertInvalid(['author_ids' => '著者 は必須入力']);
+
+        // 著者 ID が 0 (著者テーブルに存在しない)
+        $this->put($url, ['author_ids' => ['0']])
+            ->assertInvalid(['author_ids.0' => '正しい 著者']);
+
+        // 著者ID が 3つ目の著者のID(正常)
+        $this->put($url, ['author_ids' => [$this->authors[2]->id]])
+            ->assertValid('author_ids.0');
+    }
 }
