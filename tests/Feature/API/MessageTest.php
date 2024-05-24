@@ -65,4 +65,15 @@ class MessageTest extends TestCase
 
         $this->assertDatabaseHas('messages', $message);
     }
+
+    /** @test */
+    public function 削除(): void
+    {
+        $message = Message::create(['body' => 'Good']);
+
+        $this->deleteJson('api/messages/' . $message->id)
+            ->assertStatus(204);
+
+        $this->assertModelMissing($message);
+    }
 }
