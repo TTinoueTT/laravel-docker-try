@@ -53,4 +53,16 @@ class MessageTest extends TestCase
                 ]
             ]);
     }
+
+    /** @test */
+    public function 登録(): void
+    {
+        $message = ['body' => 'Bye']; // 登録用データ
+
+        $this->postJson(route('api.message.store'), $message)
+            ->assertStatus(201)
+            ->assertJson($message);
+
+        $this->assertDatabaseHas('messages', $message);
+    }
 }
